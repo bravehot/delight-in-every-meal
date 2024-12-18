@@ -35,11 +35,19 @@ export class UserService {
       throw new HttpException('验证码错误', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    await this.redisService.del(`${CacheEnum.LOGIN_SMS_CODE_KEY}${phoneNum}`);
+    await this.redisService.del(`${CacheEnum.CAPTCHA_SMS_CODE_KEY}${phoneNum}`);
+
     const user = await this.prismaService.user.findUnique({
       where: {
         phoneNum,
       },
     });
+    let signPayload: { userId: string; phoneNum: string } = {
+      userId: '',
+      phoneNum: '',
+    };
+    let userInfo = {};
 
     if (!user) {
       const newUser = await this.prismaService.user.create({
@@ -48,13 +56,19 @@ export class UserService {
         },
       });
 
-      return newUser;
-    }
+      signPayload = {
+        userId: newUser.id,
+        phoneNum: newUser.phoneNum,
+      };
 
-    const signPayload = {
-      userId: user.id,
-      phoneNum: user.phoneNum,
-    };
+      userInfo = newUser;
+    } else {
+      signPayload = {
+        userId: user.id,
+        phoneNum: user.phoneNum,
+      };
+      userInfo = user;
+    }
 
     const tokenInfo = await getAccessRefreshToken(
       this.jwtService,
@@ -63,8 +77,12 @@ export class UserService {
       this.configService.get('REFRESH_TOKEN_EXPIRES') || '14d',
     );
 
+    if (!tokenInfo) {
+      throw new HttpException('登录失败', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     return {
-      ...user,
+      ...userInfo,
       ...tokenInfo,
     };
   }

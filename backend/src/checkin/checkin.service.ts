@@ -86,7 +86,13 @@ export class CheckinService {
       orderBy: {
         date: 'desc',
       },
+      select: {
+        points: true,
+        consecutiveDays: true,
+        date: true,
+      },
     });
+
     return history;
   }
 
@@ -101,7 +107,6 @@ export class CheckinService {
         },
       },
     });
-    console.log('checkIn: ', checkIn);
 
     return checkIn;
   }

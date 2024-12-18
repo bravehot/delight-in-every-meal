@@ -1,8 +1,8 @@
 export enum CacheEnum {
   // 获取短信验证码
-  CAPTCHA_SMS_CODE_KEY = 'captcha_sms_codes:',
+  CAPTCHA_SMS_CODE_KEY = 'captcha_sms_code:',
   // 登录短信验证码
-  LOGIN_SMS_CODE_KEY = 'login_sms_codes:',
+  LOGIN_SMS_CODE_KEY = 'login_sms_code:',
 }
 
 // 改为连续天数的积分
