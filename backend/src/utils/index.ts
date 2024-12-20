@@ -1,5 +1,3 @@
-import { jwtConstants } from 'src/constants';
-
 import type { JwtService } from '@nestjs/jwt';
 
 /**
@@ -30,13 +28,14 @@ export const getAccessRefreshToken = async (
   accessToken: string;
   refreshToken: string;
 }> => {
+  const secret = process.env.JWT_SECRET;
   const accessToken = await service.signAsync(payload, {
-    secret: jwtConstants.secret,
+    secret,
     expiresIn: assetExpiresIn,
   });
 
   const refreshToken = await service.signAsync(payload, {
-    secret: jwtConstants.secret,
+    secret,
     expiresIn: refreshExpiresIn,
   });
 

@@ -7,8 +7,9 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
-import { IS_PUBLIC_KEY, jwtConstants } from '../../constants';
+import { IS_PUBLIC_KEY } from '../../constants';
 
 import type { Request } from 'express';
 import type { JwtPayload } from 'src/types';
@@ -18,6 +19,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(
     private reflector: Reflector,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {
     super();
   }
@@ -41,7 +43,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     try {
       const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
-        secret: jwtConstants.secret,
+        secret: this.configService.get('JWT_SECRET'),
       });
 
       request.user = payload;
