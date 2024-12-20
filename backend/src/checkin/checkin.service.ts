@@ -9,7 +9,6 @@ export class CheckinService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async checkIn(userId: string) {
-    console.log('userId: ', userId);
     const status = await this.getCheckInStatus(userId);
     if (status) {
       throw new HttpException('今天已签到', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -93,7 +92,32 @@ export class CheckinService {
       },
     });
 
-    return history;
+    const result = new Array(7).fill({}).map((_, index) => {
+      return {
+        checkInStatus: false,
+        points: null,
+        consecutiveDays: null,
+        date: dayjs().subtract(index, 'days').toDate(),
+      };
+    });
+
+    const lastCheckInTime = history?.[0]?.date;
+
+    if (lastCheckInTime && dayjs().isSame(lastCheckInTime, 'day')) {
+      return result.map((item, index) => {
+        const { date, points, consecutiveDays } = history?.[index] || {};
+        const isCheckInStatus = dayjs(date).isSame(item.date, 'day');
+
+        return {
+          checkInStatus: isCheckInStatus,
+          points: isCheckInStatus ? points : null,
+          consecutiveDays: isCheckInStatus ? consecutiveDays : null,
+          date: item.date,
+        };
+      });
+    } else {
+      return result;
+    }
   }
 
   async getCheckInStatus(userId: string) {
