@@ -3,7 +3,6 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,21 +12,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+}
+
 model User {
-  id         String      @id @default(uuid())
-  phoneNum   String      @unique
-  password   String?
-  name       String?
-  avatar     String?
-  gender     String?
-  birthday   DateTime?
-  address    String?
-  email      String?
-  isDisabled Boolean     @default(false)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  checkIns   CheckIn[]
-  points     UserPoints?
+  id          String      @id @default(uuid())
+  phoneNum    String      @unique
+  password    String?
+  name        String?
+  avatar      String?
+  gender      String?
+  birthday    DateTime?
+  address     String?
+  email       String?
+  isDisabled  Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  checkIns    CheckIn[]
+  points      UserPoints?
+  sentInvites Invite[]    @relation("SentInvites")
 }
 
 model UserPoints {
@@ -53,4 +58,16 @@ model CheckIn {
 
   @@unique([userId, date])
   @@index([userId, date])
+}
+
+model Invite {
+  id        String       @id @default(uuid())
+  inviterId String
+  status    InviteStatus
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  inviter User @relation("SentInvites", fields: [inviterId], references: [id])
+
+  @@index([inviterId])
 }
