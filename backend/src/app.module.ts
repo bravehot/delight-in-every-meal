@@ -13,7 +13,6 @@ import { JwtStrategy } from './common/strategy/jwt.strategy';
 import { JwtAuthGuard } from './common/guard/jwt-auth.guard';
 import { AiModule } from './ai/ai.module';
 import { PointModule } from './point/point.module';
-import { InviteModule } from './invite/invite.module';
 
 @Module({
   imports: [
@@ -35,7 +34,6 @@ import { InviteModule } from './invite/invite.module';
     CheckinModule,
     AiModule,
     PointModule,
-    InviteModule,
   ],
   providers: [
     JwtStrategy,

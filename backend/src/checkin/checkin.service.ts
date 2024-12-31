@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { isEmpty } from 'class-validator';
 import * as dayjs from 'dayjs';
 
 import { PrismaService } from 'src/common/prisma/prisma.service';
@@ -92,32 +93,27 @@ export class CheckinService {
       },
     });
 
-    const result = new Array(7).fill({}).map((_, index) => {
-      return {
-        checkInStatus: false,
-        points: null,
-        consecutiveDays: null,
-        date: dayjs().subtract(index, 'days').toDate(),
-      };
-    });
-
-    const lastCheckInTime = history?.[0]?.date;
-
-    if (lastCheckInTime && dayjs().isSame(lastCheckInTime, 'day')) {
-      return result.map((item, index) => {
-        const { date, points, consecutiveDays } = history?.[index] || {};
-        const isCheckInStatus = dayjs(date).isSame(item.date, 'day');
-
-        return {
-          checkInStatus: isCheckInStatus,
-          points: isCheckInStatus ? points : null,
-          consecutiveDays: isCheckInStatus ? consecutiveDays : null,
-          date: item.date,
+    return new Array(7)
+      .fill({})
+      .map((_, index) => {
+        const info = {
+          checkInStatus: false,
+          points: null,
+          consecutiveDays: null,
+          date: dayjs().subtract(index, 'days').toDate(),
         };
-      });
-    } else {
-      return result;
-    }
+        const find = history.find((h) =>
+          dayjs(h.date).isSame(info.date, 'day'),
+        );
+        return {
+          checkInStatus: !isEmpty(find),
+          points: find?.points || null,
+          consecutiveDays: find?.consecutiveDays || null,
+          date: info.date,
+        };
+      })
+      .reverse()
+      .filter((item) => item.checkInStatus);
   }
 
   async getCheckInStatus(userId: string) {

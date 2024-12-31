@@ -17,22 +17,28 @@ enum InviteStatus {
   ACCEPTED
 }
 
+enum TokenConsumedType {
+  EXCHANGE
+  CONSUME
+  REWARD
+}
+
 model User {
-  id          String      @id @default(uuid())
-  phoneNum    String      @unique
-  password    String?
-  name        String?
-  avatar      String?
-  gender      String?
-  birthday    DateTime?
-  address     String?
-  email       String?
-  isDisabled  Boolean     @default(false)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  checkIns    CheckIn[]
-  points      UserPoints?
-  sentInvites Invite[]    @relation("SentInvites")
+  id         String      @id @default(uuid())
+  phoneNum   String      @unique
+  password   String?
+  name       String?
+  avatar     String?
+  gender     String?
+  birthday   DateTime?
+  address    String?
+  email      String?
+  isDisabled Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  checkIns   CheckIn[]
+  points     UserPoints?
+  userToken  UserToken?
 }
 
 model UserPoints {
@@ -60,14 +66,27 @@ model CheckIn {
   @@index([userId, date])
 }
 
-model Invite {
-  id        String       @id @default(uuid())
-  inviterId String
-  status    InviteStatus
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+model UserToken {
+  id        String             @id @default(uuid())
+  userId    String             @unique
+  user      User               @relation(fields: [userId], references: [id])
+  amount    Int                @default(3000) // 默认3000个token
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  records   TokenUsageRecord[]
 
-  inviter User @relation("SentInvites", fields: [inviterId], references: [id])
+  @@index([userId])
+}
 
-  @@index([inviterId])
+model TokenUsageRecord {
+  id          String            @id @default(uuid())
+  userTokenId String
+  userToken   UserToken         @relation(fields: [userTokenId], references: [id])
+  amount      Int
+  type        TokenConsumedType
+  imgUrl      String? // 添加可选的图片URL字段
+  result      Json? // 添加可选的分析结果字段
+  createdAt   DateTime          @default(now())
+
+  @@index([userTokenId])
 }

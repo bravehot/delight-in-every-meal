@@ -10,6 +10,7 @@ import { CacheEnum } from 'src/types/enum';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { getAccessRefreshToken } from 'src/utils';
+import { DEFAULT_POINT_COUNT, DEFAULT_TOKEN_COUNT } from 'src/constants';
 
 @Injectable()
 export class UserService {
@@ -53,6 +54,16 @@ export class UserService {
       const newUser = await this.prismaService.user.create({
         data: {
           phoneNum,
+          points: {
+            create: {
+              points: DEFAULT_POINT_COUNT,
+            },
+          },
+          userToken: {
+            create: {
+              amount: DEFAULT_TOKEN_COUNT,
+            },
+          },
         },
       });
 
