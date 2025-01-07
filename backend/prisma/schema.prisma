@@ -79,14 +79,25 @@ model UserToken {
 }
 
 model TokenUsageRecord {
-  id          String            @id @default(uuid())
-  userTokenId String
-  userToken   UserToken         @relation(fields: [userTokenId], references: [id])
-  amount      Int
-  type        TokenConsumedType
-  imgUrl      String? // 添加可选的图片URL字段
-  result      Json? // 添加可选的分析结果字段
-  createdAt   DateTime          @default(now())
+  id             String            @id @default(uuid())
+  userTokenId    String
+  userToken      UserToken         @relation(fields: [userTokenId], references: [id])
+  amount         Int
+  type           TokenConsumedType
+  createdAt      DateTime          @default(now())
+  analysisRecord AnalysisRecord?
 
   @@index([userTokenId])
+}
+
+model AnalysisRecord {
+  id                 String           @id @default(uuid())
+  tokenUsageRecord   TokenUsageRecord @relation(fields: [tokenUsageRecordId], references: [id])
+  tokenUsageRecordId String           @unique
+  imageURL           String
+  foods              Json
+  comments           String
+  score              Int
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 }

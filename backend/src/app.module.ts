@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { RedisModule } from './common/redis/redis.module';
 import { SmsModule } from './common/sms/sms.module';
 import { CheckinModule } from './checkin/checkin.module';
+import { CosModule } from './cos/cos.module';
 
 import { JwtStrategy } from './common/strategy/jwt.strategy';
 import { JwtAuthGuard } from './common/guard/jwt-auth.guard';
@@ -34,6 +35,7 @@ import { PointModule } from './point/point.module';
     CheckinModule,
     AiModule,
     PointModule,
+    CosModule,
   ],
   providers: [
     JwtStrategy,

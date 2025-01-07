@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { isEmpty } from 'class-validator';
 import * as dayjs from 'dayjs';
 
 import { PrismaService } from 'src/common/prisma/prisma.service';
@@ -105,8 +104,9 @@ export class CheckinService {
         const find = history.find((h) =>
           dayjs(h.date).isSame(info.date, 'day'),
         );
+        const isSame = dayjs(history?.[index]?.date).isSame(info.date, 'day');
         return {
-          checkInStatus: !isEmpty(find),
+          checkInStatus: isSame,
           points: find?.points || null,
           consecutiveDays: find?.consecutiveDays || null,
           date: info.date,
