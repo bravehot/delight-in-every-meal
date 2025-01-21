@@ -1,11 +1,9 @@
 import { View, Text } from "react-native";
 
-const Login = () => {
+export default function Setting() {
   return (
     <View>
-      <Text>Login</Text>
+      <Text>Setting</Text>
     </View>
   );
-};
-
-export default Login;
+}

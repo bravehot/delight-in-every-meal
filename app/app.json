@@ -37,5 +37,12 @@
     "experiments": {
       "typedRoutes": true
     }
+  },
+  "build": {
+    "babel": {
+      "include": [
+        "@ui-kitten/components"
+      ]
+    }
   }
 }
