@@ -3,7 +3,7 @@ import { Response } from 'express';
 
 import { UserService } from './user.service';
 
-import { LoginRegisterDto, CaptchaDto, SmsDto } from './dto';
+import { LoginRegisterDto, CaptchaDto, SmsDto, UserHealthDto } from './dto';
 import { Public } from 'src/constants';
 import { CurrentUserId } from 'src/common/decorator/user.decorator';
 
@@ -33,5 +33,13 @@ export class UserController {
   @Get('profile')
   async getUserInfo(@CurrentUserId() userId: string) {
     return await this.userService.getUserInfo(userId);
+  }
+
+  @Post('health')
+  async setUserHealth(
+    @CurrentUserId() userId: string,
+    @Body() body: UserHealthDto,
+  ) {
+    return await this.userService.setUserHealth(userId, body);
   }
 }

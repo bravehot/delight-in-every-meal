@@ -10,4 +10,9 @@ export class PointController {
   async getPoint(@CurrentUserId() userId: string) {
     return this.pointService.getPoint(userId);
   }
+
+  @Get('balance')
+  async balance(@CurrentUserId() userId: string) {
+    return this.pointService.getBalance(userId);
+  }
 }

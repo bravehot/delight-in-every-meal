@@ -23,6 +23,19 @@ enum TokenConsumedType {
   REWARD
 }
 
+enum ActivityLevel {
+  SEDENTARY // 久坐（很少运动）：× 1.2
+  LIGHTLY_ACTIVE // 轻度活动（每周 1-3 次轻量运动）：× 1.375
+  MODERATELY_ACTIVE // 中等活动（每周 3-5 次中等运动）：× 1.55
+  VERY_ACTIVE // 高强度活动（每周 6-7 次高强度运动）：× 1.725
+  EXTREMELY_ACTIVE // 极高强度（运动员或重体力劳动者）：× 1.9
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
 model User {
   id         String      @id @default(uuid())
   phoneNum   String      @unique
@@ -39,6 +52,7 @@ model User {
   checkIns   CheckIn[]
   points     UserPoints?
   userToken  UserToken?
+  userHealth UserHealth?
 }
 
 model UserPoints {
@@ -86,6 +100,8 @@ model TokenUsageRecord {
   type           TokenConsumedType
   createdAt      DateTime          @default(now())
   analysisRecord AnalysisRecord?
+  imgUrl         String            @default("")
+  result         Json              @default("{}")
 
   @@index([userTokenId])
 }
@@ -100,4 +116,20 @@ model AnalysisRecord {
   score              Int
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
+}
+
+model UserHealth {
+  id            String        @id @default(uuid())
+  userId        String        @unique
+  user          User          @relation(fields: [userId], references: [id])
+  height        Float // 身高（厘米）
+  weight        Float // 体重（千克）
+  tdee          Float // 总能量消耗（TDEE）
+  gender        Gender // 性别
+  activityLevel ActivityLevel // 活动水平
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  age           Int // 年龄
+
+  @@index([userId])
 }

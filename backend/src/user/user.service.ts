@@ -1,11 +1,19 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as svgCaptcha from 'svg-captcha';
+import { ActivityLevel } from '@prisma/client';
 
 import { RedisService } from 'src/common/redis/redis.service';
 import { SmsService } from 'src/common/sms/sms.service';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 
-import { LoginRegisterDto, CaptchaDto, SmsDto } from './dto';
+import {
+  LoginRegisterDto,
+  CaptchaDto,
+  SmsDto,
+  UserHealthDto,
+  ActivityLevelFactors,
+  Gender,
+} from './dto';
 import { CacheEnum } from 'src/types/enum';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -148,5 +156,47 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async setUserHealth(userId: string, info: UserHealthDto) {
+    const { height, weight, gender, age, activityLevel } = info;
+
+    const bmrValue =
+      gender === Gender.MALE
+        ? 10 * weight + 6.25 * height - 5 * age + 5
+        : 10 * weight + 6.25 * height - 5 * age - 161;
+
+    const tdeeValue = (bmrValue * ActivityLevelFactors[activityLevel]).toFixed(
+      2,
+    );
+
+    const updatedHealth = await this.prismaService.userHealth.upsert({
+      where: {
+        userId,
+      },
+      create: {
+        height,
+        weight,
+        age,
+        gender,
+        tdee: parseFloat(tdeeValue),
+        activityLevel: activityLevel as unknown as ActivityLevel,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+      update: {
+        height,
+        weight,
+        age,
+        gender,
+        tdee: parseFloat(tdeeValue),
+        activityLevel: activityLevel as unknown as ActivityLevel,
+      },
+    });
+
+    return updatedHealth;
   }
 }

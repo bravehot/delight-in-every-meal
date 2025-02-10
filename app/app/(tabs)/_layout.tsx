@@ -38,9 +38,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="setting"
         options={{
-          title: "设置",
+          title: "我的",
           tabBarIcon: ({ color }) => (
-            <AntDesign name="setting" size={24} color={color} />
+            <AntDesign name="user" size={24} color={color} />
           ),
         }}
       />

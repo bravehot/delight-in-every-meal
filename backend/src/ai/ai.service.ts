@@ -79,13 +79,16 @@ export class AiService {
         response.response_metadata?.tokenUsage?.totalTokens ||
         DEFAULT_COSUMER_COUNT;
 
-      console.log('response.response_metadata: ', response.response_metadata);
-      console.log('totalTokens: ', totalTokens);
-
       await this.consumeToken(userId, totalTokens);
-      await this.saveRecord(userId, totalTokens, imgUrl, parsedOutput);
+      await this.saveRecord(
+        userId,
+        totalTokens,
+        imgUrl,
+        parsedOutput.foods,
+        'CONSUME',
+      );
 
-      return parsedOutput;
+      return parsedOutput.foods;
     } catch (error) {
       throw new HttpException('AI 分析失败', HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -111,6 +114,8 @@ export class AiService {
           amount: true,
           type: true,
           createdAt: true,
+          imgUrl: true,
+          result: true,
         },
       }),
 
@@ -181,6 +186,7 @@ export class AiService {
     amount: number,
     imgUrl: string,
     responseStr: any,
+    type: 'CONSUME',
   ) {
     await this.prismaService.tokenUsageRecord.create({
       data: {
@@ -190,11 +196,9 @@ export class AiService {
             userId,
           },
         },
-        type: 'CONSUME',
+        type,
         imgUrl,
-        result: {
-          create: responseStr,
-        },
+        result: responseStr,
       },
     });
   }

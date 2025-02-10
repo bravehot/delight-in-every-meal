@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as dayjs from 'dayjs';
+import { isEmpty } from 'lodash';
 
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CHECK_IN_POINTS } from 'src/types/enum';
@@ -92,28 +93,23 @@ export class CheckinService {
       },
     });
 
-    return new Array(7)
-      .fill({})
-      .map((_, index) => {
-        const info = {
-          checkInStatus: false,
-          points: null,
-          consecutiveDays: null,
-          date: dayjs().subtract(index, 'days').toDate(),
-        };
-        const find = history.find((h) =>
-          dayjs(h.date).isSame(info.date, 'day'),
-        );
-        const isSame = dayjs(history?.[index]?.date).isSame(info.date, 'day');
-        return {
-          checkInStatus: isSame,
-          points: find?.points || null,
-          consecutiveDays: find?.consecutiveDays || null,
-          date: info.date,
-        };
-      })
-      .reverse()
-      .filter((item) => item.checkInStatus);
+    return new Array(7).fill({}).map((_, index) => {
+      const info = {
+        checkInStatus: false,
+        points: null,
+        consecutiveDays: null,
+        date: dayjs().subtract(index, 'days').toDate(),
+      };
+      const find = history.find((h) => dayjs(h.date).isSame(info.date, 'day'));
+      const isSame = dayjs(history?.[index]?.date).isSame(info.date, 'day');
+
+      return {
+        checkInStatus: isSame && !isEmpty(find),
+        points: find?.points || null,
+        consecutiveDays: find?.consecutiveDays || null,
+        date: info.date,
+      };
+    });
   }
 
   async getCheckInStatus(userId: string) {

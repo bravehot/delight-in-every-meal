@@ -12,4 +12,13 @@ export class PointService {
       },
     });
   }
+
+  async getBalance(userId: string) {
+    const userPoints = await this.prismaService.userPoints.findUnique({
+      where: {
+        userId,
+      },
+    });
+    return userPoints?.points || 0;
+  }
 }
