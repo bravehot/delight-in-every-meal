@@ -136,13 +136,24 @@ export class AiService {
     };
   }
 
+  async getTokenBalance(userId: string) {
+    const userToken = await this.prismaService.userToken.findFirst({
+      where: {
+        userId,
+      },
+    });
+
+    return userToken?.amount || 0;
+  }
+
   private async checkToken(userId: string) {
     const token = await this.prismaService.userToken.findFirst({
       where: {
         userId,
       },
     });
-    if (!token || token?.amount < 0) {
+
+    if (!token || token?.amount <= 0) {
       throw new HttpException(
         'token 数量不足',
         HttpStatus.INTERNAL_SERVER_ERROR,

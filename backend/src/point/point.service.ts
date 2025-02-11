@@ -6,14 +6,6 @@ export class PointService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getPoint(userId: string) {
-    return await this.prismaService.userPoints.findUnique({
-      where: {
-        userId,
-      },
-    });
-  }
-
-  async getBalance(userId: string) {
     const userPoints = await this.prismaService.userPoints.findUnique({
       where: {
         userId,

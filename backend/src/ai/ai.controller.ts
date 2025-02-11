@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { AiService } from './ai.service';
 import { CurrentUserId } from '../common/decorator/user.decorator';
 
@@ -28,5 +28,10 @@ export class AiController {
     @Body() { page = 1, pageSize = 10 }: { page?: number; pageSize?: number },
   ) {
     return this.aiService.history(userId, page, pageSize);
+  }
+
+  @Get('token')
+  async getTokenBalance(@CurrentUserId() userId: string) {
+    return this.aiService.getTokenBalance(userId);
   }
 }
