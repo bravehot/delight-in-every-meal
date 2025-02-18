@@ -51,6 +51,13 @@ export class UserService {
       where: {
         phoneNum,
       },
+      select: {
+        id: true,
+        phoneNum: true,
+        name: true,
+        avatar: true,
+        gender: true,
+      },
     });
     let signPayload: { userId: string; phoneNum: string } = {
       userId: '',
@@ -80,7 +87,12 @@ export class UserService {
         phoneNum: newUser.phoneNum,
       };
 
-      userInfo = newUser;
+      userInfo = {
+        id: newUser.id,
+        phoneNum: newUser.phoneNum,
+        name: newUser.name,
+        avatar: newUser.avatar,
+      };
     } else {
       signPayload = {
         userId: user.id,
@@ -148,6 +160,12 @@ export class UserService {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
+      },
+      select: {
+        id: true,
+        phoneNum: true,
+        name: true,
+        avatar: true,
       },
     });
 
