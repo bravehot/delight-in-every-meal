@@ -1,12 +1,18 @@
+import React, { useState, useCallback } from "react";
 import { View, Text, Pressable } from "react-native";
+import { useSetState } from "react-use";
 import { useForm, Controller } from "react-hook-form";
-import { useState, useCallback } from "react";
-import InputRadius from "@/app/components/InputRadius";
-import { Button } from "@ui-kitten/components";
+import { Button, Card, Modal, withStyles } from "@ui-kitten/components";
+
+import InputRadius from "@/app/components/InputForm";
+
+import type { ThemedComponentProps } from "@ui-kitten/components";
 
 type FormData = { phoneNum: string; smsCode: string };
 
-const LoginForm: React.FC = () => {
+interface LoginFormProps extends ThemedComponentProps<"View"> {}
+
+const LoginForm: React.FC<LoginFormProps> = ({ eva }) => {
   const [countdown, setCountdown] = useState(0);
   const {
     control,
@@ -14,17 +20,13 @@ const LoginForm: React.FC = () => {
     watch,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ mode: "onBlur" });
+  const [state, setState] = useSetState({ visible: false });
 
   const phoneNum = watch("phoneNum");
 
   // 处理获取验证码
   const handleGetCode = useCallback(async () => {
-    if (countdown > 0) return;
-
-    // 验证手机号格式
-    if (!/^1[3-9]\d{9}$/.test(phoneNum)) {
-      return;
-    }
+    if (errors.phoneNum || countdown > 0) return;
 
     try {
       // TODO: 调用发送验证码 API
@@ -57,100 +59,108 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <View style={{ padding: 20 }} className="flex h-full">
-      <Controller
-        control={control}
-        name="phoneNum"
-        rules={{
-          required: "请输入中国大陆手机号",
-          pattern: {
-            value: /^1[3-9]\d{9}$/,
-            message: "请输入正确的手机号格式",
-          },
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <InputRadius
-            keyboardType="phone-pad"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            placeholder="请输入中国大陆手机号"
-            value={value}
-            maxLength={11}
-          />
-        )}
-      />
-
-      {errors.phoneNum && (
-        <Text className="text-red-500 text-sm mt-1">
-          {errors.phoneNum.message}
-        </Text>
-      )}
-
-      <View className="mt-4">
+    <>
+      <View style={{ padding: 20 }} className="flex h-full">
         <Controller
           control={control}
-          name="smsCode"
+          name="phoneNum"
           rules={{
-            required: "请输入短信验证码",
+            required: "请输入中国大陆手机号",
             pattern: {
-              value: /^\d{6}$/,
-              message: "验证码为6位数字",
+              value: /^1[3-9]\d{9}$/,
+              message: "请输入正确的手机号格式",
             },
           }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <View className="relative">
-              <InputRadius
-                keyboardType="number-pad"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                placeholder="请输入短信验证码"
-                value={value}
-                maxLength={6}
-              />
-              <Pressable
-                onPress={handleGetCode}
-                disabled={countdown > 0 || !phoneNum || !!errors.phoneNum}
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  top: 0,
-                  height: "100%",
-                  width: 120,
-                }}
-                className={`items-center justify-center rounded-md`}
-              >
-                <Text
-                  className={`text-base ${
-                    countdown > 0 || !phoneNum || !!errors.phoneNum
-                      ? "text-gray-500"
-                      : "text-white"
-                  }`}
-                >
-                  {countdown > 0 ? `${countdown}s后重试` : "获取验证码"}
-                </Text>
-              </Pressable>
-            </View>
+            <InputRadius
+              keyboardType="phone-pad"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              placeholder="请输入中国大陆手机号"
+              value={value}
+              maxLength={11}
+            />
           )}
         />
+
+        {errors.phoneNum && (
+          <Text className="text-red-500 text-sm mt-1">
+            {errors.phoneNum.message}
+          </Text>
+        )}
+
+        <View className="mt-4">
+          <Controller
+            control={control}
+            name="smsCode"
+            rules={{
+              required: "请输入短信验证码",
+              pattern: {
+                value: /^\d{4}$/,
+                message: "验证码为4位数字",
+              },
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View className="relative">
+                <InputRadius
+                  keyboardType="number-pad"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  placeholder="请输入短信验证码"
+                  value={value}
+                  maxLength={4}
+                />
+                <Pressable
+                  onPress={handleGetCode}
+                  disabled={countdown > 0 || !phoneNum || !!errors.phoneNum}
+                  className={`items-center justify-center rounded-md absolute right-0 top-0 h-full w-[120px]`}
+                >
+                  <Text
+                    className={`text-base font-medium`}
+                    style={{
+                      color: eva?.theme?.["color-primary-500"] || "#FB923C",
+                    }}
+                  >
+                    {countdown > 0 ? `${countdown}s后重试` : "获取验证码"}
+                  </Text>
+                </Pressable>
+              </View>
+            )}
+          />
+        </View>
+
+        {errors.smsCode && (
+          <Text className="text-red-500 text-sm mt-1">
+            {errors.smsCode.message}
+          </Text>
+        )}
+
+        <Button
+          className="mt-auto mb-4"
+          onPress={handleSubmit(onSubmit)}
+          disabled={isSubmitting}
+        >
+          <Text className="text-white">
+            {isSubmitting ? "登录中..." : "登录/注册"}
+          </Text>
+        </Button>
       </View>
 
-      {errors.smsCode && (
-        <Text className="text-red-500 text-sm mt-1">
-          {errors.smsCode.message}
-        </Text>
-      )}
-
-      <Button
-        className="mt-auto mb-4"
-        onPress={handleSubmit(onSubmit)}
-        disabled={isSubmitting}
+      <Modal
+        visible={state.visible}
+        backdropStyle={{
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+        }}
+        onBackdropPress={() => {
+          setState({ visible: false });
+        }}
       >
-        <Text className="text-white">
-          {isSubmitting ? "登录中..." : "登录/注册"}
-        </Text>
-      </Button>
-    </View>
+        <Card disabled={true}>
+          <Text>请输入验证码</Text>
+        </Card>
+      </Modal>
+    </>
   );
 };
 
-export default LoginForm;
+export default withStyles(LoginForm);

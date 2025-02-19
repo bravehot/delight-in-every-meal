@@ -10,7 +10,7 @@ import { Image } from "expo-image";
 import backgroundImage from "@/assets/images/login/login-bg.png";
 import logoImage from "@/assets/images/icon.png";
 import { Input } from "@ui-kitten/components";
-import InputRadius from "../components/InputRadius";
+import InputRadius from "../components/InputForm";
 import LoginForm from "./components/LoginForm";
 
 export default function Login() {

@@ -15,7 +15,7 @@ interface InputRadiusProps
   onChangeText: (value: number | string) => void;
 }
 
-const InputRadius: React.FC<InputRadiusProps> = ({
+const InputForm: React.FC<InputRadiusProps> = ({
   value,
   placeholder,
   keyboardType,
@@ -38,7 +38,7 @@ const InputRadius: React.FC<InputRadiusProps> = ({
     inputRange: [0, 1],
     outputRange: [
       "rgb(209, 213, 219)",
-      eva?.theme?.["color-primary-500"] || "red",
+      eva?.theme?.["color-primary-500"] || "#FB923C",
     ],
   });
 
@@ -66,4 +66,4 @@ const InputRadius: React.FC<InputRadiusProps> = ({
   );
 };
 
-export default withStyles(InputRadius);
+export default withStyles(InputForm);
