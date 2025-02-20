@@ -3,7 +3,15 @@ import { Response } from 'express';
 
 import { UserService } from './user.service';
 
-import { LoginRegisterDto, CaptchaDto, SmsDto, UserHealthDto } from './dto';
+import {
+  LoginDto,
+  CaptchaDto,
+  SmsDto,
+  UserHealthDto,
+  RegisterDto,
+  LoginByPasswordDto,
+  ForgetPasswordDto,
+} from './dto';
 import { Public } from 'src/constants';
 import { CurrentUserId } from 'src/common/decorator/user.decorator';
 
@@ -13,8 +21,26 @@ export class UserController {
 
   @Public()
   @Post('login')
-  async login(@Body() body: LoginRegisterDto) {
+  async login(@Body() body: LoginDto) {
     return this.userService.login(body);
+  }
+
+  @Public()
+  @Post('loginByPassword')
+  async loginByPassword(@Body() body: LoginByPasswordDto) {
+    return this.userService.loginByPassword(body);
+  }
+
+  @Public()
+  @Post('register')
+  async register(@Body() body: RegisterDto) {
+    return this.userService.register(body);
+  }
+
+  @Public()
+  @Post('forgetPassword')
+  async forgetPassword(@Body() body: ForgetPasswordDto) {
+    return this.userService.forgetPassword(body);
   }
 
   @Public()

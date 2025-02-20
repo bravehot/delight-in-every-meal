@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { TextInput, StyleSheet, Animated, TextInputProps } from "react-native";
+import { TextInput, Animated, TextInputProps } from "react-native";
 import { withStyles } from "@ui-kitten/components";
 
 import type { ThemedComponentProps } from "@ui-kitten/components";
@@ -22,6 +22,7 @@ const InputForm: React.FC<InputRadiusProps> = ({
   eva,
   className = "",
   onChangeText,
+  ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const borderColorAnimation = useRef(new Animated.Value(0)).current;
@@ -61,6 +62,8 @@ const InputForm: React.FC<InputRadiusProps> = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         accessibilityLabel={placeholder}
+        placeholderTextColor={eva?.theme?.["color-basic-400"]}
+        {...props}
       />
     </Animated.View>
   );

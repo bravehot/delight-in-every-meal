@@ -1,8 +1,12 @@
-export enum CacheEnum {
-  // 获取短信验证码
-  CAPTCHA_SMS_CODE_KEY = 'captcha_sms_code:',
+export enum SmsCodeType {
   // 登录短信验证码
-  LOGIN_SMS_CODE_KEY = 'login_sms_code:',
+  LOGIN_CODE_KEY = 'login_code',
+  // 注册短信验证码
+  REGISTER_CODE_KEY = 'register_code',
+  // 忘记密码短信验证码
+  FORGET_PASSWORD_CODE_KEY = 'forget_password_code',
+  // 修改密码短信验证码
+  CHANGE_PASSWORD_CODE_KEY = 'change_password_code',
 }
 
 // 改为连续天数的积分

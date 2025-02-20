@@ -1,17 +1,10 @@
-import {
-  ImageBackground,
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-} from "react-native";
+import { ImageBackground, View, Text, StyleSheet } from "react-native";
 import { Image } from "expo-image";
+
+import LoginForm from "@/components/login/LoginForm";
 
 import backgroundImage from "@/assets/images/login/login-bg.png";
 import logoImage from "@/assets/images/icon.png";
-import { Input } from "@ui-kitten/components";
-import InputRadius from "../components/InputForm";
-import LoginForm from "./components/LoginForm";
 
 export default function Login() {
   return (

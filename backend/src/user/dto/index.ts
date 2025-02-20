@@ -1,23 +1,51 @@
 import { Length, Matches, IsEnum, Min, Max } from 'class-validator';
 import { PickType } from '@nestjs/mapped-types';
+import { SmsCodeType } from 'src/types/enum';
 
-export class LoginRegisterDto {
+export class LoginDto {
   @Matches(/^1[3-9]\d{9}$/, { message: '请输入中国大陆地区手机号' })
   phoneNum: string;
 
   @Length(4, 4, { message: '请输入短信验证码' })
   smsCode: string;
-
-  @Length(4, 4, { message: '请输入图形验证码' })
-  captcha: string;
 }
 
-export class CaptchaDto extends PickType(LoginRegisterDto, ['phoneNum']) {}
+export class ForgetPasswordDto extends LoginDto {
+  @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
+    message: '密码至少包含数字和英文, 长度6-20',
+  })
+  @Length(6, 20, { message: '请输入 6-20 位密码' })
+  newPassword: string;
+}
 
-export class SmsDto extends PickType(LoginRegisterDto, [
-  'phoneNum',
-  'captcha',
-]) {}
+export class LoginByPasswordDto extends PickType(LoginDto, ['phoneNum']) {
+  @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
+    message: '密码至少包含数字和英文, 长度6-20',
+  })
+  @Length(6, 20, { message: '请输入 6-20 位密码' })
+  password: string;
+}
+
+export class RegisterDto extends PickType(LoginDto, ['phoneNum', 'smsCode']) {
+  @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
+    message: '密码至少包含数字和英文, 长度6-20',
+  })
+  @Length(6, 20, { message: '请输入 6-20 位密码' })
+  password: string;
+}
+
+export class CaptchaDto extends PickType(LoginDto, ['phoneNum']) {
+  @IsEnum(SmsCodeType)
+  type: SmsCodeType;
+}
+
+export class SmsDto extends PickType(LoginDto, ['phoneNum']) {
+  @Length(4, 4, { message: '请输入图形验证码' })
+  captcha: string;
+
+  @IsEnum(SmsCodeType)
+  type: SmsCodeType;
+}
 
 export enum ActivityLevel {
   SEDENTARY = 'SEDENTARY', // 久坐（很少运动）： × 1.2
