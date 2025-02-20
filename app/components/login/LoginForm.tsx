@@ -1,13 +1,15 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Modal, withStyles } from "@ui-kitten/components";
+import { useQuery } from "@tanstack/react-query";
 
 import InputForm from "@/components/InputForm";
 
 import type { ThemedComponentProps } from "@ui-kitten/components";
-import { useQuery } from "@tanstack/react-query";
+
 import { getCaptcha } from "@/service/login";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 type FormData = { phoneNum: string; smsCode: string };
 
@@ -67,6 +69,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
     }
   };
 
+  const handleRegister = () => {};
+
   return (
     <View className={`flex h-full p-[20px] ${className}`}>
       <Controller
@@ -109,7 +113,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <View className="flex flex-row mt-[20px] gap-[10px] items-center">
-            <View className="flex-1">
+            <View className="flex-1 relative">
               <InputForm
                 keyboardType="phone-pad"
                 onBlur={onBlur}
@@ -121,7 +125,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
             </View>
 
             <Pressable
-              className="basis-[100px]"
+              className="absolute right-0"
               onPress={getCaptchaModal}
               disabled={state.countdown > 0 || !phoneNum || !!errors.phoneNum}
             >
@@ -147,7 +151,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
       )}
 
       <Button
-        className="mt-auto"
+        className="mt-[20px]"
         onPress={handleSubmit(onSubmit)}
         disabled={isSubmitting}
       >
@@ -155,6 +159,37 @@ const LoginForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
           {isSubmitting ? "登录中..." : "登录"}
         </Text>
       </Button>
+
+      <Pressable className="mx-auto mt-[40%]">
+        <Text className="mb-[10px] text-gray-500">密码登录</Text>
+        <AntDesign
+          className="rounded-full w-[55px] h-[55px] flex items-center justify-center"
+          name="key"
+          size={24}
+          style={{
+            backgroundColor: "#f7f7f7",
+            textAlign: "center",
+            lineHeight: 55,
+          }}
+        />
+      </Pressable>
+      <View className="mt-auto">
+        <Pressable
+          onPress={handleRegister}
+          className="flex-row w-full justify-center text-sm mt-[10px]"
+        >
+          <Text className="text-gray-500 mr-[4px]" numberOfLines={1}>
+            还没有账号？
+          </Text>
+          <Text
+            className="font-medium"
+            style={{ color: eva?.theme?.["color-primary-400"] || "#FB923C" }}
+            numberOfLines={1}
+          >
+            立即注册
+          </Text>
+        </Pressable>
+      </View>
 
       <Modal
         visible={state.visible}

@@ -13,7 +13,7 @@ export default function Login() {
         source={backgroundImage}
         className="flex-1 w-full absolute inset-0"
       />
-      <View className="h-[60%] w-[80%] m-auto">
+      <View className="h-[70%] w-[80%] m-auto">
         <View>
           <Image
             source={logoImage}
