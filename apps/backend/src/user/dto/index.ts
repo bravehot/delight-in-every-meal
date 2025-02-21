@@ -1,16 +1,26 @@
-import { Length, Matches, IsEnum, Min, Max } from 'class-validator';
+import { IsEnum, Length, Matches, Max, Min } from 'class-validator';
 import { PickType } from '@nestjs/mapped-types';
 import { SmsCodeType } from 'src/types/enum';
 
-export class LoginDto {
+import {
+  ActivityLevel,
+  ICaptcha,
+  IForgetPassword,
+  ILogin,
+  ILoginByPassword,
+  IRegister,
+  ISms,
+  IUserHealth,
+} from '@repo/api-interface';
+
+export class LoginDto implements ILogin {
   @Matches(/^1[3-9]\d{9}$/, { message: '请输入中国大陆地区手机号' })
   phoneNum: string;
-
   @Length(4, 4, { message: '请输入短信验证码' })
   smsCode: string;
 }
 
-export class ForgetPasswordDto extends LoginDto {
+export class ForgetPasswordDto extends LoginDto implements IForgetPassword {
   @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
     message: '密码至少包含数字和英文, 长度6-20',
   })
@@ -24,7 +34,10 @@ export class ForgetPasswordDto extends LoginDto {
   newPassword: string;
 }
 
-export class LoginByPasswordDto extends PickType(LoginDto, ['phoneNum']) {
+export class LoginByPasswordDto
+  extends PickType(LoginDto, ['phoneNum'])
+  implements ILoginByPassword
+{
   @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
     message: '密码至少包含数字和英文, 长度6-20',
   })
@@ -32,7 +45,10 @@ export class LoginByPasswordDto extends PickType(LoginDto, ['phoneNum']) {
   password: string;
 }
 
-export class RegisterDto extends PickType(LoginDto, ['phoneNum', 'smsCode']) {
+export class RegisterDto
+  extends PickType(LoginDto, ['phoneNum', 'smsCode'])
+  implements IRegister
+{
   @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
     message: '密码至少包含数字和英文, 长度6-20',
   })
@@ -40,25 +56,20 @@ export class RegisterDto extends PickType(LoginDto, ['phoneNum', 'smsCode']) {
   password: string;
 }
 
-export class CaptchaDto extends PickType(LoginDto, ['phoneNum']) {
+export class CaptchaDto
+  extends PickType(LoginDto, ['phoneNum'])
+  implements ICaptcha
+{
   @IsEnum(SmsCodeType)
   type: SmsCodeType;
 }
 
-export class SmsDto extends PickType(LoginDto, ['phoneNum']) {
+export class SmsDto extends PickType(LoginDto, ['phoneNum']) implements ISms {
   @Length(4, 4, { message: '请输入图形验证码' })
   captcha: string;
 
   @IsEnum(SmsCodeType)
   type: SmsCodeType;
-}
-
-export enum ActivityLevel {
-  SEDENTARY = 'SEDENTARY', // 久坐（很少运动）： × 1.2
-  LIGHTLY_ACTIVE = 'LIGHTLY_ACTIVE', // 轻度活动（每周 1-3 次轻量运动）： × 1.375
-  MODERATELY_ACTIVE = 'MODERATELY_ACTIVE', // 中等活动（每周 3-5 次中等运动）： × 1.55
-  VERY_ACTIVE = 'VERY_ACTIVE', // 高强度活动（每周 6-7 次高强度运动）： × 1.725
-  EXTRA_ACTIVE = 'EXTRA_ACTIVE', // 极高强度（运动员或重体力劳动者）： × 1.9
 }
 
 export const ActivityLevelFactors = {
@@ -74,7 +85,7 @@ export enum Gender {
   FEMALE = 'FEMALE',
 }
 
-export class UserHealthDto {
+export class UserHealthDto implements IUserHealth {
   @Min(50)
   @Max(300)
   height: number; // 身高（厘米）

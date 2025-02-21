@@ -3,15 +3,16 @@ import { View, Text, Pressable } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Modal, withStyles } from "@ui-kitten/components";
 import { useQuery } from "@tanstack/react-query";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 import InputForm from "@/components/InputForm";
 
-import type { ThemedComponentProps } from "@ui-kitten/components";
-
 import { getCaptcha } from "@/service/login";
-import AntDesign from "@expo/vector-icons/AntDesign";
 
-type FormData = { phoneNum: string; smsCode: string };
+import type { ThemedComponentProps } from "@ui-kitten/components";
+import type { ILogin } from "@repo/api-interface";
+
+type FormData = ILogin;
 
 interface LoginFormProps extends ThemedComponentProps<"View"> {
   className?: string;

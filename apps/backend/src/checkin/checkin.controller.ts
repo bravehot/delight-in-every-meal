@@ -18,7 +18,7 @@ export class CheckinController {
   }
 
   @Get('status')
-  async getCheckInStatus(@CurrentUserId() userId: string) {
+  async getCheckInStatus(@CurrentUserId() userId: string): Promise<any> {
     return this.checkinService.getCheckInStatus(userId);
   }
 }

@@ -1,0 +1,20 @@
+{
+  "name": "delight-in-every-meal",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "turbo run build",
+    "dev:backend": "turbo run start:dev --filter=backend",
+    "dev:mobile": "turbo run ios --filter=mobile",
+    "dev": "turbo run start:dev --filter=backend ios --filter=mobile --parallel",
+    "install": "turbo install"
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

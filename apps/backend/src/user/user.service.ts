@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as svgCaptcha from 'svg-captcha';
-import { ActivityLevel } from '@prisma/client';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+
 import { SHA256 } from 'crypto-js';
 
 import { RedisService } from 'src/common/redis/redis.service';
@@ -24,6 +24,7 @@ import { SmsCodeType } from 'src/types/enum';
 
 import { getAccessRefreshToken } from 'src/utils';
 import { DEFAULT_POINT_COUNT, DEFAULT_TOKEN_COUNT } from 'src/constants';
+import { $Enums } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -349,7 +350,7 @@ export class UserService {
         age,
         gender,
         tdee: parseFloat(tdeeValue),
-        activityLevel: activityLevel as unknown as ActivityLevel,
+        activityLevel: activityLevel as unknown as $Enums.ActivityLevel,
         user: {
           connect: {
             id: userId,
@@ -362,7 +363,7 @@ export class UserService {
         age,
         gender,
         tdee: parseFloat(tdeeValue),
-        activityLevel: activityLevel as unknown as ActivityLevel,
+        activityLevel: activityLevel as unknown as $Enums.ActivityLevel,
       },
     });
 

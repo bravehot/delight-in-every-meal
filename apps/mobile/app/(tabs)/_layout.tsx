@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { Tabs, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { View } from "react-native";
 
 import useGlobalStore from "@/store";
 
