@@ -15,6 +15,12 @@ export class ForgetPasswordDto extends LoginDto {
     message: '密码至少包含数字和英文, 长度6-20',
   })
   @Length(6, 20, { message: '请输入 6-20 位密码' })
+  password: string;
+
+  @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
+    message: '密码至少包含数字和英文, 长度6-20',
+  })
+  @Length(6, 20, { message: '请输入 6-20 位密码' })
   newPassword: string;
 }
 

@@ -173,6 +173,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
           }}
         />
       </Pressable>
+
       <View className="mt-auto">
         <Pressable
           onPress={handleRegister}

@@ -44,6 +44,15 @@ export class UserController {
   }
 
   @Public()
+  @Post('changePassword')
+  async changePassword(
+    @CurrentUserId() userId: string,
+    @Body() body: ForgetPasswordDto,
+  ) {
+    return this.userService.changePassword(userId, body);
+  }
+
+  @Public()
   @Get('sendSms')
   async getSmsCode(@Query() info: SmsDto) {
     return this.userService.getSmsCode(info);

@@ -54,7 +54,7 @@ export default function RootLayout() {
           }}
         >
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="login/index" />
+          <Stack.Screen name="login" />
           <Stack.Screen name="+not-found" />
         </Stack>
       </ApplicationProvider>

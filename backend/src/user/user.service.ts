@@ -227,6 +227,54 @@ export class UserService {
     }
   }
 
+  async changePassword(userId: string, info: ForgetPasswordDto) {
+    const { phoneNum, smsCode, newPassword } = info;
+    const redisSmsCode = await this.redisService.get(
+      `${SmsCodeType.CHANGE_PASSWORD_CODE_KEY}_sms_${phoneNum}`,
+    );
+
+    if (!redisSmsCode) {
+      throw new HttpException('验证码已过期', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    if (redisSmsCode !== smsCode) {
+      throw new HttpException('验证码错误', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('用户不存在', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    if (user.password === SHA256(newPassword).toString()) {
+      throw new HttpException('新密码不能与旧密码相同', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      await this.prismaService.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          password: SHA256(newPassword).toString(),
+        },
+      });
+
+      await this.redisService.del(
+        `${SmsCodeType.CHANGE_PASSWORD_CODE_KEY}_sms_${phoneNum}`,
+      );
+
+      return '修改密码成功';
+    } catch (error) {
+      throw new HttpException('修改密码失败', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   async getSmsCode(info: SmsDto) {
     const { phoneNum, captcha, type } = info;
     const redisCaptcha = await this.redisService.get(
