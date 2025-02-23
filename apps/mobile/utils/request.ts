@@ -25,17 +25,23 @@ axiosInterface.interceptors.request.use(
   }
 );
 
-// 响应拦截器
 axiosInterface.interceptors.response.use(
   (response) => {
     return response.data;
   },
   async (error) => {
-    if (error.response && error.response.status === 401) {
+    const resStatus = error.response?.status;
+    if (resStatus === 401) {
       await AsyncStorage.removeItem("authToken");
       Toast.show({
         type: "info",
         text2: "登录已过期，请重新登录",
+      });
+    } else {
+      Toast.show({
+        type: "error",
+        text1: error.response.data.message || "请求失败",
+        topOffset: 60,
       });
     }
     return Promise.reject(error);
@@ -52,5 +58,5 @@ const request = async <T>(
     return Promise.reject(error);
   }
 };
-
+export { axiosInterface };
 export default request;
