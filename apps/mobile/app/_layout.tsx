@@ -4,6 +4,7 @@ import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useReactQueryDevTools } from "@dev-plugins/react-query";
 import { ApplicationProvider } from "@ui-kitten/components";
+import Toast from "react-native-toast-message";
 
 import * as eva from "@eva-design/eva";
 
@@ -58,6 +59,7 @@ export default function RootLayout() {
           <Stack.Screen name="+not-found" />
         </Stack>
       </ApplicationProvider>
+      <Toast />
     </QueryClientProvider>
   );
 }

@@ -1,31 +1,31 @@
 import { useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { Controller, useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Image } from "expo-image";
-import Toast from "react-native-toast-message";
 import { useRouter } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
+import Toast from "react-native-toast-message";
 
-import { Button } from "@ui-kitten/components";
 import InputForm from "../InputForm";
 import CaptureModal from "./CaptureModal";
-
 import logoImage from "@/assets/images/icon.png";
 
-import { register } from "@/service/login";
+import { Button, type ThemedComponentProps } from "@ui-kitten/components";
+import { SmsCodeType, type IForgetPasswordReq } from "@repo/api-interface";
+import { forgetPassword } from "@/service/login";
 
-import { SmsCodeType, type IRegisterReq } from "@repo/api-interface";
-import type { ThemedComponentProps } from "@ui-kitten/components";
-import type { SubmitHandler } from "react-hook-form";
 import { passwordReg } from "@/utils";
 
-interface FormData extends IRegisterReq {
-  password2: string;
-}
-interface RegisterFormProps extends ThemedComponentProps<"View"> {
+interface ForgetPwdFormProps extends ThemedComponentProps<"View"> {
   className?: string;
 }
-const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
+
+type FormData = IForgetPasswordReq;
+
+const ForgetPwdForm: React.FC<ForgetPwdFormProps> = ({
+  eva,
+  className = "",
+}) => {
   const {
     control,
     handleSubmit,
@@ -33,36 +33,45 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
     trigger,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ mode: "onBlur" });
-  const router = useRouter();
 
-  const { mutate: registerMutate, isPending } = useMutation({
-    mutationFn: register,
+  const { mutate: forgetPasswordMutate, isPending } = useMutation({
+    mutationFn: forgetPassword,
   });
 
+  const router = useRouter();
   const [state, setState] = useState({
-    index: 0,
     visible: false,
     countdown: 0,
-    captchaSvg: "",
-    capchaInput: "",
+    tabIndex: 0,
   });
-
-  const [phoneNum] = watch(["phoneNum"]);
+  const phoneNum = watch("phoneNum");
 
   const getCaptchaModal = async () => {
-    const isVaild = await trigger(["phoneNum", "password", "password2"]);
+    const isVaild = await trigger(["phoneNum"]);
     if (!isVaild) return;
 
     setState((prevState) => ({ ...prevState, visible: true }));
   };
 
-  const handleRegister: SubmitHandler<FormData> = async (data) => {
-    registerMutate(data, {
+  const handleSendSmsSuccess = (isSuccess: boolean) => {
+    if (isSuccess) {
+      setState((prevState) => ({ ...prevState, countdown: 60 }));
+      setInterval(() => {
+        setState((prevState) => ({
+          ...prevState,
+          countdown: prevState.countdown - 1,
+        }));
+      }, 1000);
+    }
+  };
+
+  const handleSave = async (data: FormData) => {
+    forgetPasswordMutate(data, {
       onSuccess: () => {
         Toast.show({
           type: "success",
-          text1: "注册成功",
-          text2: "请登录",
+          text1: "密码修改成功",
+          text2: "请重新登录",
         });
         router.replace("/login");
       },
@@ -70,7 +79,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
   };
 
   return (
-    <View className={`h-full w-[95%] mx-auto bg-white ${className}`}>
+    <View className={`h-[90%] w-[95%] m-auto bg-white ${className}`}>
       <View className="flex-1 w-[80%] mx-auto mt-[10%]">
         <Image
           source={logoImage}
@@ -114,7 +123,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
             required: "请输入登录密码",
             pattern: {
               value: passwordReg,
-              message: "密码至少包含数字和英文, 长度6-20",
+              message: "密码至少包含数字、英文, 长度6-20",
             },
           }}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -133,37 +142,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
         {errors.password && (
           <Text className="text-red-500 text-sm mt-1">
             {errors.password.message}
-          </Text>
-        )}
-
-        <Controller
-          control={control}
-          name="password2"
-          rules={{
-            required: "请再次输入登录密码",
-            validate: (value) => {
-              if (value !== watch("password")) {
-                return "两次输入的密码不一致";
-              }
-              return true;
-            },
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <InputForm
-              className="mt-[20px] text-gray-500 tracking-widest"
-              keyboardType="default"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              placeholder="请再次输入登录密码"
-              value={value}
-              secureTextEntry={true}
-            />
-          )}
-        />
-
-        {errors.password2 && (
-          <Text className="text-red-500 text-sm mt-1">
-            {errors.password2.message}
           </Text>
         )}
 
@@ -212,23 +190,23 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
             {errors.smsCode.message}
           </Text>
         )}
-
         <Button
           className="mt-auto"
-          onPress={handleSubmit(handleRegister)}
+          onPress={handleSubmit(handleSave)}
           disabled={isSubmitting || isPending}
         >
-          {isPending || isSubmitting ? "注册中..." : "注册"}
+          {isPending || isSubmitting ? "保存中..." : " 保存"}
         </Button>
       </View>
 
       <CaptureModal
         phoneNum={phoneNum}
-        smsType={SmsCodeType.REGISTER_CODE_KEY}
+        smsType={SmsCodeType.FORGET_PASSWORD_CODE_KEY}
         visible={state.visible}
         close={(visible) => {
           setState((prevState) => ({ ...prevState, visible }));
         }}
+        sendSuccess={handleSendSmsSuccess}
       />
     </View>
   );
@@ -244,4 +222,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RegisterForm;
+export default ForgetPwdForm;

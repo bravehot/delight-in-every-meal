@@ -1,13 +1,24 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import * as svgCaptcha from 'svg-captcha';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { $Enums } from '@prisma/client';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 import { SHA256 } from 'crypto-js';
 
 import { RedisService } from 'src/common/redis/redis.service';
 import { SmsService } from 'src/common/sms/sms.service';
 import { PrismaService } from 'src/common/prisma/prisma.service';
+
+import { getAccessRefreshToken } from 'src/utils';
+import { DEFAULT_POINT_COUNT, DEFAULT_TOKEN_COUNT } from 'src/constants';
 
 import {
   LoginDto,
@@ -19,12 +30,21 @@ import {
   RegisterDto,
   LoginByPasswordDto,
   ForgetPasswordDto,
+  ChangePasswordDto,
 } from './dto';
 import { SmsCodeType } from 'src/types/enum';
 
-import { getAccessRefreshToken } from 'src/utils';
-import { DEFAULT_POINT_COUNT, DEFAULT_TOKEN_COUNT } from 'src/constants';
-import { $Enums } from '@prisma/client';
+import {
+  IForgetPasswordRes,
+  ILoginByPasswordRes,
+  ILoginRes,
+  IRegisterRes,
+  IChangePasswordRes,
+  IGetSmsCodeRes,
+  IGetCaptchaRes,
+  IUserInfoRes,
+  ISetUserHealthRes,
+} from '@repo/api-interface';
 
 @Injectable()
 export class UserService {
@@ -34,9 +54,10 @@ export class UserService {
     private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
-  async login(info: LoginDto) {
+  async login(info: LoginDto): Promise<ILoginRes> {
     const { phoneNum, smsCode } = info;
     const redisSmsCode = await this.redisService.get(
       `${SmsCodeType.LOGIN_CODE_KEY}_sms_${phoneNum}`,
@@ -93,7 +114,7 @@ export class UserService {
     };
   }
 
-  async register(info: RegisterDto) {
+  async register(info: RegisterDto): Promise<IRegisterRes> {
     const { phoneNum, smsCode, password } = info;
 
     const redisSmsCode = await this.redisService.get(
@@ -145,7 +166,9 @@ export class UserService {
     }
   }
 
-  async loginByPassword(info: LoginByPasswordDto) {
+  async loginByPassword(
+    info: LoginByPasswordDto,
+  ): Promise<ILoginByPasswordRes> {
     const { phoneNum, password } = info;
 
     const user = await this.prismaService.user.findUnique({
@@ -184,8 +207,8 @@ export class UserService {
     };
   }
 
-  async forgetPassword(info: ForgetPasswordDto) {
-    const { phoneNum, smsCode, newPassword } = info;
+  async forgetPassword(info: ForgetPasswordDto): Promise<IForgetPasswordRes> {
+    const { phoneNum, smsCode, password } = info;
 
     const redisSmsCode = await this.redisService.get(
       `${SmsCodeType.FORGET_PASSWORD_CODE_KEY}_sms_${phoneNum}`,
@@ -219,7 +242,7 @@ export class UserService {
           id: user.id,
         },
         data: {
-          password: SHA256(newPassword).toString(),
+          password: SHA256(password).toString(),
         },
       });
       return '修改密码成功';
@@ -228,8 +251,11 @@ export class UserService {
     }
   }
 
-  async changePassword(userId: string, info: ForgetPasswordDto) {
-    const { phoneNum, smsCode, newPassword } = info;
+  async changePassword(
+    userId: string,
+    info: ChangePasswordDto,
+  ): Promise<IChangePasswordRes> {
+    const { phoneNum, smsCode, password, newPassword } = info;
     const redisSmsCode = await this.redisService.get(
       `${SmsCodeType.CHANGE_PASSWORD_CODE_KEY}_sms_${phoneNum}`,
     );
@@ -250,6 +276,10 @@ export class UserService {
 
     if (!user) {
       throw new HttpException('用户不存在', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    if (user.password !== SHA256(password).toString()) {
+      throw new HttpException('旧密码错误', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     if (user.password === SHA256(newPassword).toString()) {
@@ -276,8 +306,9 @@ export class UserService {
     }
   }
 
-  async getSmsCode(info: SmsDto) {
+  async getSmsCode(info: SmsDto): Promise<IGetSmsCodeRes> {
     const { phoneNum, captcha, type } = info;
+
     const redisCaptcha = await this.redisService.get(
       `${type}_captcha_${phoneNum}`,
     );
@@ -297,7 +328,7 @@ export class UserService {
     return randomCode;
   }
 
-  async getCaptcha(info: CaptchaDto) {
+  async getCaptcha(info: CaptchaDto): Promise<IGetCaptchaRes> {
     const { phoneNum, type } = info;
     const captcha = svgCaptcha.create();
     await this.redisService.set(
@@ -305,10 +336,10 @@ export class UserService {
       captcha.text,
       60,
     );
-    return captcha;
+    return captcha.data;
   }
 
-  async getUserInfo(userId: string) {
+  async getUserInfo(userId: string): Promise<IUserInfoRes> {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
@@ -328,7 +359,10 @@ export class UserService {
     return user;
   }
 
-  async setUserHealth(userId: string, info: UserHealthDto) {
+  async setUserHealth(
+    userId: string,
+    info: UserHealthDto,
+  ): Promise<ISetUserHealthRes> {
     const { height, weight, gender, age, activityLevel } = info;
 
     const bmrValue =
@@ -367,6 +401,6 @@ export class UserService {
       },
     });
 
-    return updatedHealth;
+    return updatedHealth as unknown as ISetUserHealthRes;
   }
 }

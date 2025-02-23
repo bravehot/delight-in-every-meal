@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import { WinstonModule } from 'nest-winston';
 
 import { UserModule } from './user/user.module';
 import { RedisModule } from './common/redis/redis.module';
@@ -15,9 +16,12 @@ import { JwtAuthGuard } from './common/guard/jwt-auth.guard';
 import { AiModule } from './ai/ai.module';
 import { PointModule } from './point/point.module';
 
+import { windstonOption } from './utils/config';
+
 @Module({
   imports: [
     UserModule,
+    WinstonModule.forRoot(windstonOption),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',

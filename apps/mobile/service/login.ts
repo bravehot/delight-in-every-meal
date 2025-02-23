@@ -1,10 +1,73 @@
 import request from "@/utils/request";
 
-const getCaptcha = () => {
-  return request({
+import type {
+  ICaptchaReq,
+  IGetCaptchaRes,
+  ILoginByPasswordReq,
+  ILoginReq,
+  IRegisterReq,
+  ISmsReq,
+  IGetSmsCodeRes,
+  IRegisterRes,
+  ILoginRes,
+  ILoginByPasswordRes,
+  IForgetPasswordRes,
+  IForgetPasswordReq,
+} from "@repo/api-interface";
+
+const getCaptcha = (params: ICaptchaReq) => {
+  return request<IGetCaptchaRes>({
     url: "user/getCaptcha",
     method: "GET",
+    params: params,
   });
 };
 
-export { getCaptcha };
+const sendSms = (params: ISmsReq) => {
+  return request<IGetSmsCodeRes>({
+    url: "user/sendSms",
+    method: "get",
+    params,
+  });
+};
+
+const register = (data: IRegisterReq) => {
+  return request<IRegisterRes>({
+    url: "user/register",
+    method: "post",
+    data,
+  });
+};
+
+const loginByPassword = (data: ILoginByPasswordReq) => {
+  return request<ILoginByPasswordRes>({
+    url: "user/loginByPassword",
+    method: "post",
+    data,
+  });
+};
+
+const loginBySms = (data: ILoginReq) => {
+  return request<ILoginRes>({
+    url: "user/login",
+    method: "post",
+    data,
+  });
+};
+
+const forgetPassword = (data: IForgetPasswordReq) => {
+  return request<IForgetPasswordRes>({
+    url: "user/forgetPassword",
+    method: "post",
+    data,
+  });
+};
+
+export {
+  getCaptcha,
+  sendSms,
+  register,
+  loginByPassword,
+  loginBySms,
+  forgetPassword,
+};

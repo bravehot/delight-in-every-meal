@@ -44,3 +44,10 @@ export const getAccessRefreshToken = async (
     refreshToken,
   };
 };
+
+/**
+ * 密码正则表达式
+ * @returns password regex
+ */
+export const passwordReg =
+  /^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+={}\[\]:;"'<>,.?/-]{6,20}$/;

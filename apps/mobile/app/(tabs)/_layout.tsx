@@ -35,6 +35,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <AntDesign name="book" size={24} color={color} />
             ),
+            tabBarActiveBackgroundColor: "transparent",
           }}
         />
         <Tabs.Screen
@@ -44,6 +45,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <AntDesign name="camerao" size={24} color={color} />
             ),
+            tabBarActiveBackgroundColor: "transparent",
           }}
         />
         <Tabs.Screen
@@ -53,6 +55,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <AntDesign name="user" size={24} color={color} />
             ),
+            tabBarActiveBackgroundColor: "transparent",
           }}
         />
       </Tabs>

@@ -44,7 +44,6 @@ const InputForm: React.FC<InputRadiusProps> = ({
   });
 
   const handleTextChange = (text: string) => {
-    console.log(1111, text);
     onChangeText?.(text);
   };
 
@@ -54,7 +53,7 @@ const InputForm: React.FC<InputRadiusProps> = ({
       className={`border-b-[1px]`}
     >
       <TextInput
-        className={`w-full text-base py-[10px] px-[5px] ${className}`}
+        className={`w-full text-base leading-[16px] py-[10px] px-[5px] ${className}`}
         value={value}
         onChangeText={handleTextChange}
         placeholder={placeholder}
