@@ -13,7 +13,7 @@
     "forceConsistentCasingInFileNames": true,
     "composite": true,
     "incremental": true,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
   },
   "include": [
     "src/**/*"

@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Modal, withStyles } from "@ui-kitten/components";
 
+import { Button, withStyles } from "@ui-kitten/components";
 import InputForm from "@/components/InputForm";
-
-import { getCaptcha } from "@/service/login";
-
-import type { ThemedComponentProps } from "@ui-kitten/components";
-import type { ILogin } from "@repo/api-interface";
 import CaptureModal from "./CaptureModal";
+
+import { getCaptcha, loginBySms, sendSms } from "@/service/login";
+
+import { SmsCodeType, type ILogin } from "@repo/api-interface";
+import type { ThemedComponentProps } from "@ui-kitten/components";
+import type { SubmitHandler } from "react-hook-form";
 
 type FormData = ILogin;
 
@@ -22,6 +23,7 @@ const LoginSmsForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
     control,
     handleSubmit,
     watch,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ mode: "onBlur" });
 
@@ -29,41 +31,32 @@ const LoginSmsForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
 
   const phoneNum = watch("phoneNum");
 
-  // 处理获取验证码
-  const handleGetCode = async () => {
-    if (errors.phoneNum || state.countdown > 0) return;
+  const getCaptchaModal = async () => {
+    const isVaild = await trigger(["phoneNum"]);
+    if (!isVaild) return;
 
-    try {
-      // TODO: 调用发送验证码 API
-      // await sendSmsCode(phoneNum);
-      // 开始倒计时
-      setState((prevState) => ({ ...prevState, countdown: 60 }));
-      const timer = setInterval(() => {
-        setState((prevState) => ({
-          ...prevState,
-          countdown: prevState.countdown - 1,
-        }));
-      }, 1000);
-    } catch (error) {
-      console.error("发送验证码失败:", error);
-    }
-  };
-
-  const getCaptchaModal = () => {
     setState((prevState) => ({ ...prevState, visible: true }));
   };
 
-  // 表单提交函数
-  const onSubmit = async (data: FormData) => {
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      // TODO: 调用登录 API
-      console.log(data);
+      const { data: loginRes, statusCode } = await loginBySms(data);
     } catch (error) {
       console.error("登录失败:", error);
     }
   };
 
-  const handleRegister = () => {};
+  const handleSendSmsSuccess = (isSuccess: boolean) => {
+    if (isSuccess) {
+      setState((prevState) => ({ ...prevState, countdown: 60 }));
+      setInterval(() => {
+        setState((prevState) => ({
+          ...prevState,
+          countdown: prevState.countdown - 1,
+        }));
+      }, 1000);
+    }
+  };
 
   return (
     <View className={`flex w-full ${className}`}>
@@ -120,11 +113,7 @@ const LoginSmsForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
               />
             </View>
 
-            <Pressable
-              className="absolute right-0"
-              onPress={getCaptchaModal}
-              disabled={state.countdown > 0 || !phoneNum || !!errors.phoneNum}
-            >
+            <Pressable className="absolute right-0" onPress={getCaptchaModal}>
               <Text
                 className={`text-base w-full text-right font-medium`}
                 style={{
@@ -157,10 +146,13 @@ const LoginSmsForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
       </Button>
 
       <CaptureModal
+        phoneNum={phoneNum}
+        smsType={SmsCodeType.LOGIN_CODE_KEY}
         visible={state.visible}
         close={(visible) => {
           setState((prevState) => ({ ...prevState, visible }));
         }}
+        sendSuccess={handleSendSmsSuccess}
       />
     </View>
   );

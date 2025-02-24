@@ -2,19 +2,20 @@ import { useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { Image } from "expo-image";
-import { Buffer } from "buffer";
+import Toast from "react-native-toast-message";
+import { useRouter } from "expo-router";
 
 import { Button } from "@ui-kitten/components";
 import InputForm from "../InputForm";
 import CaptureModal from "./CaptureModal";
-import { axiosInterface } from "@/utils/request";
 
 import logoImage from "@/assets/images/icon.png";
 
-import { getCaptcha } from "@/service/login";
+import { register } from "@/service/login";
 
 import { SmsCodeType, type IRegister } from "@repo/api-interface";
 import type { ThemedComponentProps } from "@ui-kitten/components";
+import type { SubmitHandler } from "react-hook-form";
 
 interface FormData extends IRegister {
   password2: string;
@@ -30,6 +31,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
     trigger,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ mode: "onBlur" });
+  const router = useRouter();
 
   const [state, setState] = useState({
     index: 0,
@@ -42,25 +44,21 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
   const [phoneNum] = watch(["phoneNum"]);
 
   const getCaptchaModal = async () => {
-    setState((prevState) => ({ ...prevState, visible: true }));
+    const isVaild = await trigger(["phoneNum", "password", "password2"]);
+    if (!isVaild) return;
 
-    try {
-      const data: string = await axiosInterface({
-        url: "user/getCaptcha",
-        method: "get",
-        params: {
-          phoneNum,
-          type: SmsCodeType.REGISTER_CODE_KEY,
-        },
+    setState((prevState) => ({ ...prevState, visible: true }));
+  };
+
+  const handleRegister: SubmitHandler<FormData> = async (data) => {
+    const { statusCode } = await register(data);
+    if (statusCode === 200) {
+      Toast.show({
+        type: "success",
+        text1: "注册成功",
+        text2: "请登录",
       });
-      // 将 SVG 字符串转换为 base64 Data URI
-      const svgBase64 = `data:image/svg+xml;base64,${Buffer.from(data).toString("base64")}`;
-      setState((prevState) => ({
-        ...prevState,
-        captchaSvg: svgBase64,
-      }));
-    } catch (error) {
-      console.log("111", error);
+      router.replace("/login");
     }
   };
 
@@ -204,50 +202,23 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
           </Text>
         )}
 
-        <Button className="mt-auto">注册</Button>
+        <Button
+          className="mt-auto"
+          onPress={handleSubmit(handleRegister)}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "注册中..." : "注册"}
+        </Button>
       </View>
 
       <CaptureModal
+        phoneNum={phoneNum}
+        smsType={SmsCodeType.REGISTER_CODE_KEY}
         visible={state.visible}
         close={(visible) => {
           setState((prevState) => ({ ...prevState, visible }));
         }}
-      >
-        <Text className="mb-[10px] text-center text-sm text-gray-500">
-          请输入图形验证码
-        </Text>
-        <View className="w-fullflex flex-row items-center">
-          <Image
-            source={{ uri: state.captchaSvg }}
-            style={{
-              width: 100,
-              height: 40,
-            }}
-            contentFit="contain"
-          />
-          <View className="flex-1">
-            <InputForm
-              placeholder="请输入验证码"
-              className="text-gray-500 tracking-widest text-sm"
-              maxLength={4}
-              value={state.capchaInput}
-              onChangeText={(value) => {
-                setState((prevState) => ({
-                  ...prevState,
-                  capchaInput: value.toString(),
-                }));
-              }}
-            />
-          </View>
-        </View>
-        <Button
-          className="mt-[20px]"
-          size="tiny"
-          disabled={Boolean(state.capchaInput)}
-        >
-          发送
-        </Button>
-      </CaptureModal>
+      />
     </View>
   );
 };

@@ -53,7 +53,7 @@ const request = async <T>(
 ): Promise<API.BaseResponseType<T>> => {
   try {
     const { data } = await axiosInterface(config);
-    return data;
+    return data || {};
   } catch (error) {
     return Promise.reject(error);
   }
