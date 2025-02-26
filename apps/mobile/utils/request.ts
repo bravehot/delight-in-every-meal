@@ -30,7 +30,7 @@ axiosInterface.interceptors.request.use(
 
 axiosInterface.interceptors.response.use(
   (response) => {
-    return response.data;
+    return response;
   },
   async (error) => {
     const resStatus = error.response?.status;
@@ -58,6 +58,7 @@ const request = async <T>(
 ): Promise<API.BaseResponseType<T>> => {
   try {
     const { data } = await axiosInterface(config);
+    console.log(data);
     return data || {};
   } catch (error) {
     return Promise.reject(error);

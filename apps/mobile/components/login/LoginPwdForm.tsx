@@ -4,6 +4,7 @@ import { Button, withStyles } from "@ui-kitten/components";
 import { Link, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
+import { useMutation } from "@tanstack/react-query";
 
 import InputForm from "@/components/InputForm";
 
@@ -12,6 +13,7 @@ import useGlobalStore from "@/store";
 
 import type { ThemedComponentProps } from "@ui-kitten/components";
 import type { ILoginByPasswordReq } from "@repo/api-interface";
+import { passwordReg } from "@/utils";
 
 type FormData = ILoginByPasswordReq;
 
@@ -26,22 +28,27 @@ const LoginPwdForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ mode: "onBlur" });
+
+  const { mutate: loginByPasswordMutate, isPending } = useMutation({
+    mutationFn: loginByPassword,
+  });
+
   const { updateUserInfo } = useGlobalStore();
 
   const onSubmit = async (data: FormData) => {
-    try {
-      const { data: loginRes } = await loginByPassword(data);
-      AsyncStorage.setItem("authToken", loginRes.accessToken);
-      AsyncStorage.setItem("refreshToken", loginRes.refreshToken);
-      updateUserInfo(loginRes);
-      Toast.show({
-        type: "success",
-        text1: "登录成功",
-      });
-      router.replace("/");
-    } catch (error) {
-      console.error("登录失败:", error);
-    }
+    loginByPasswordMutate(data, {
+      onSuccess: ({ data: loginRes }) => {
+        AsyncStorage.setItem("authToken", loginRes.accessToken);
+        AsyncStorage.setItem("refreshToken", loginRes.refreshToken);
+
+        updateUserInfo(loginRes);
+        Toast.show({
+          type: "success",
+          text1: "登录成功",
+        });
+        router.replace("/");
+      },
+    });
   };
 
   return (
@@ -79,11 +86,11 @@ const LoginPwdForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
         control={control}
         name="password"
         rules={{
-          required: "请输入登录密码",
           pattern: {
-            value: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
+            value: passwordReg,
             message: "密码至少包含数字和英文, 长度6-20",
           },
+          required: "请输入登录密码",
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <InputForm
@@ -114,10 +121,10 @@ const LoginPwdForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
       <Button
         className="mt-[20px]"
         onPress={handleSubmit(onSubmit)}
-        disabled={isSubmitting}
+        disabled={isSubmitting || isPending}
       >
         <Text className="text-white">
-          {isSubmitting ? "登录中..." : "登录"}
+          {isPending || isSubmitting ? "登录中..." : "登录"}
         </Text>
       </Button>
     </View>

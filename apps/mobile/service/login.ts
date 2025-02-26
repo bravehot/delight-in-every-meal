@@ -11,6 +11,8 @@ import type {
   IRegisterRes,
   ILoginRes,
   ILoginByPasswordRes,
+  IForgetPasswordRes,
+  IForgetPasswordReq,
 } from "@repo/api-interface";
 
 const getCaptcha = (params: ICaptchaReq) => {
@@ -53,4 +55,19 @@ const loginBySms = (data: ILoginReq) => {
   });
 };
 
-export { getCaptcha, sendSms, register, loginByPassword, loginBySms };
+const forgetPassword = (data: IForgetPasswordReq) => {
+  return request<IForgetPasswordRes>({
+    url: "user/forgetPassword",
+    method: "post",
+    data,
+  });
+};
+
+export {
+  getCaptcha,
+  sendSms,
+  register,
+  loginByPassword,
+  loginBySms,
+  forgetPassword,
+};

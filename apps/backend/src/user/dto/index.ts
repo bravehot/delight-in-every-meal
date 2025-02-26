@@ -1,10 +1,12 @@
 import { IsEnum, Length, Matches, Max, Min } from 'class-validator';
 import { PickType } from '@nestjs/mapped-types';
 import { SmsCodeType } from 'src/types/enum';
+import { passwordReg } from 'src/utils';
 
 import {
   ActivityLevel,
   ICaptchaReq,
+  IChangePasswordReq,
   IForgetPasswordReq,
   ILoginByPasswordReq,
   ILoginReq,
@@ -21,25 +23,32 @@ export class LoginDto implements ILoginReq {
 }
 
 export class ForgetPasswordDto extends LoginDto implements IForgetPasswordReq {
-  @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
-    message: '密码至少包含数字和英文, 长度6-20',
+  @Matches(passwordReg, {
+    message: '密码至少包含数字、英文, 长度6-20',
+  })
+  @Length(6, 20, { message: '请输入 6-20 位密码' })
+  password: string;
+}
+
+export class ChangePasswordDto extends LoginDto implements IChangePasswordReq {
+  @Matches(passwordReg, {
+    message: '密码至少包含数字、英文, 长度6-20',
   })
   @Length(6, 20, { message: '请输入 6-20 位密码' })
   password: string;
 
-  @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
-    message: '密码至少包含数字和英文, 长度6-20',
+  @Matches(passwordReg, {
+    message: '密码至少包含数字、英文, 长度6-20',
   })
   @Length(6, 20, { message: '请输入 6-20 位密码' })
   newPassword: string;
 }
-
 export class LoginByPasswordDto
   extends PickType(LoginDto, ['phoneNum'])
   implements ILoginByPasswordReq
 {
-  @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
-    message: '密码至少包含数字和英文, 长度6-20',
+  @Matches(passwordReg, {
+    message: '密码至少包含数字、英文, 长度6-20',
   })
   @Length(6, 20, { message: '请输入 6-20 位密码' })
   password: string;
@@ -49,8 +58,8 @@ export class RegisterDto
   extends PickType(LoginDto, ['phoneNum', 'smsCode'])
   implements IRegisterReq
 {
-  @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
-    message: '密码至少包含数字和英文, 长度6-20',
+  @Matches(passwordReg, {
+    message: '密码至少包含数字、英文, 长度6-20',
   })
   @Length(6, 20, { message: '请输入 6-20 位密码' })
   password: string;

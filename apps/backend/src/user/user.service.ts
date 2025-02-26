@@ -30,6 +30,7 @@ import {
   RegisterDto,
   LoginByPasswordDto,
   ForgetPasswordDto,
+  ChangePasswordDto,
 } from './dto';
 import { SmsCodeType } from 'src/types/enum';
 
@@ -207,7 +208,7 @@ export class UserService {
   }
 
   async forgetPassword(info: ForgetPasswordDto): Promise<IForgetPasswordRes> {
-    const { phoneNum, smsCode, newPassword } = info;
+    const { phoneNum, smsCode, password } = info;
 
     const redisSmsCode = await this.redisService.get(
       `${SmsCodeType.FORGET_PASSWORD_CODE_KEY}_sms_${phoneNum}`,
@@ -241,7 +242,7 @@ export class UserService {
           id: user.id,
         },
         data: {
-          password: SHA256(newPassword).toString(),
+          password: SHA256(password).toString(),
         },
       });
       return '修改密码成功';
@@ -252,9 +253,9 @@ export class UserService {
 
   async changePassword(
     userId: string,
-    info: ForgetPasswordDto,
+    info: ChangePasswordDto,
   ): Promise<IChangePasswordRes> {
-    const { phoneNum, smsCode, newPassword } = info;
+    const { phoneNum, smsCode, password, newPassword } = info;
     const redisSmsCode = await this.redisService.get(
       `${SmsCodeType.CHANGE_PASSWORD_CODE_KEY}_sms_${phoneNum}`,
     );
@@ -275,6 +276,10 @@ export class UserService {
 
     if (!user) {
       throw new HttpException('用户不存在', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    if (user.password !== SHA256(password).toString()) {
+      throw new HttpException('旧密码错误', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     if (user.password === SHA256(newPassword).toString()) {
@@ -303,6 +308,7 @@ export class UserService {
 
   async getSmsCode(info: SmsDto): Promise<IGetSmsCodeRes> {
     const { phoneNum, captcha, type } = info;
+
     const redisCaptcha = await this.redisService.get(
       `${type}_captcha_${phoneNum}`,
     );

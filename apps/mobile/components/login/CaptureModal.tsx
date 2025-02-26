@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { Buffer } from "buffer";
 import Toast from "react-native-toast-message";
@@ -42,7 +42,7 @@ const CaptureModal: React.FC<ICaptureModalProps> = ({
     if (!smsType || !phoneNum) return;
 
     try {
-      const data: string = await axiosInterface({
+      const { data } = await axiosInterface({
         url: "user/getCaptcha",
         method: "get",
         params: {
@@ -70,11 +70,11 @@ const CaptureModal: React.FC<ICaptureModalProps> = ({
       captcha: state.capchaInput,
     });
     if (statusCode === 200) {
+      close?.(false);
       Toast.show({
         type: "success",
         text1: "验证码发送成功",
       });
-      close?.(false);
     }
   };
 
@@ -95,14 +95,16 @@ const CaptureModal: React.FC<ICaptureModalProps> = ({
           请输入图形验证码
         </Text>
         <View className="w-fullflex flex-row items-center">
-          <Image
-            source={{ uri: state.captchaSvg }}
-            style={{
-              width: 100,
-              height: 40,
-            }}
-            contentFit="contain"
-          />
+          <Pressable onPress={getCaptchaModal}>
+            <Image
+              source={{ uri: state.captchaSvg }}
+              style={{
+                width: 100,
+                height: 40,
+              }}
+              contentFit="contain"
+            />
+          </Pressable>
           <View className="flex-1">
             <InputForm
               placeholder="请输入验证码"
@@ -118,12 +120,7 @@ const CaptureModal: React.FC<ICaptureModalProps> = ({
             />
           </View>
         </View>
-        <Button
-          className="mt-[20px]"
-          size="tiny"
-          disabled={Boolean(state.capchaInput)}
-          onPress={handleSend}
-        >
+        <Button className="mt-[20px]" size="tiny" onPress={handleSend}>
           发送
         </Button>
       </View>

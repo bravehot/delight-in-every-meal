@@ -26,10 +26,14 @@ export default function LoginLayout() {
       <Stack.Screen
         name="modalForgetPwd"
         options={{
-          presentation: "modal",
+          presentation: "card",
           headerShown: true,
           title: "忘记密码",
           headerBackTitle: "返回",
+          headerTintColor: "#000", //text-gray-500
+          headerTitleStyle: {
+            fontWeight: "normal",
+          },
         }}
       />
     </Stack>

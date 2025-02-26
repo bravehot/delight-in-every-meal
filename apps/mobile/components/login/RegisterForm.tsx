@@ -4,6 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Image } from "expo-image";
 import Toast from "react-native-toast-message";
 import { useRouter } from "expo-router";
+import { useMutation } from "@tanstack/react-query";
 
 import { Button } from "@ui-kitten/components";
 import InputForm from "../InputForm";
@@ -16,6 +17,7 @@ import { register } from "@/service/login";
 import { SmsCodeType, type IRegisterReq } from "@repo/api-interface";
 import type { ThemedComponentProps } from "@ui-kitten/components";
 import type { SubmitHandler } from "react-hook-form";
+import { passwordReg } from "@/utils";
 
 interface FormData extends IRegisterReq {
   password2: string;
@@ -32,6 +34,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ mode: "onBlur" });
   const router = useRouter();
+
+  const { mutate: registerMutate, isPending } = useMutation({
+    mutationFn: register,
+  });
 
   const [state, setState] = useState({
     index: 0,
@@ -51,15 +57,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
   };
 
   const handleRegister: SubmitHandler<FormData> = async (data) => {
-    const { statusCode } = await register(data);
-    if (statusCode === 200) {
-      Toast.show({
-        type: "success",
-        text1: "注册成功",
-        text2: "请登录",
-      });
-      router.replace("/login");
-    }
+    registerMutate(data, {
+      onSuccess: () => {
+        Toast.show({
+          type: "success",
+          text1: "注册成功",
+          text2: "请登录",
+        });
+        router.replace("/login");
+      },
+    });
   };
 
   return (
@@ -106,7 +113,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
           rules={{
             required: "请输入登录密码",
             pattern: {
-              value: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
+              value: passwordReg,
               message: "密码至少包含数字和英文, 长度6-20",
             },
           }}
@@ -134,9 +141,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
           name="password2"
           rules={{
             required: "请再次输入登录密码",
-            pattern: {
-              value: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
-              message: "密码至少包含数字和英文, 长度6-20",
+            validate: (value) => {
+              if (value !== watch("password")) {
+                return "两次输入的密码不一致";
+              }
+              return true;
             },
           }}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -207,9 +216,9 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
         <Button
           className="mt-auto"
           onPress={handleSubmit(handleRegister)}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isPending}
         >
-          {isSubmitting ? "注册中..." : "注册"}
+          {isPending || isSubmitting ? "注册中..." : "注册"}
         </Button>
       </View>
 

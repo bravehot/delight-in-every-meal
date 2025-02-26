@@ -7,6 +7,10 @@ export interface ILoginReq {
 
 export interface IForgetPasswordReq extends ILoginReq {
   password: string;
+}
+
+export interface IChangePasswordReq extends ILoginReq {
+  password: string;
   newPassword: string;
 }
 

@@ -44,7 +44,6 @@ const InputForm: React.FC<InputRadiusProps> = ({
   });
 
   const handleTextChange = (text: string) => {
-    console.log(1111, text);
     onChangeText?.(text);
   };
 

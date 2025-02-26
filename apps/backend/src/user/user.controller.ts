@@ -11,6 +11,7 @@ import {
   RegisterDto,
   LoginByPasswordDto,
   ForgetPasswordDto,
+  ChangePasswordDto,
 } from './dto';
 import { Public } from 'src/constants';
 import { CurrentUserId } from 'src/common/decorator/user.decorator';
@@ -47,7 +48,7 @@ export class UserController {
   @Post('changePassword')
   async changePassword(
     @CurrentUserId() userId: string,
-    @Body() body: ForgetPasswordDto,
+    @Body() body: ChangePasswordDto,
   ) {
     return this.userService.changePassword(userId, body);
   }
