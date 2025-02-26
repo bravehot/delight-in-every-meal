@@ -1,6 +1,9 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
+import { router } from "expo-router";
+
+import useGlobalStore from "@/store";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -33,6 +36,8 @@ axiosInterface.interceptors.response.use(
     const resStatus = error.response?.status;
     if (resStatus === 401) {
       await AsyncStorage.removeItem("authToken");
+      useGlobalStore.getState().updateUserInfo(null);
+      router.replace("/login");
       Toast.show({
         type: "info",
         text2: "登录已过期，请重新登录",

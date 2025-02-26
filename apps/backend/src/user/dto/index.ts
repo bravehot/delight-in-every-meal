@@ -4,23 +4,23 @@ import { SmsCodeType } from 'src/types/enum';
 
 import {
   ActivityLevel,
-  ICaptcha,
-  IForgetPassword,
-  ILogin,
-  ILoginByPassword,
-  IRegister,
-  ISms,
-  IUserHealth,
+  ICaptchaReq,
+  IForgetPasswordReq,
+  ILoginByPasswordReq,
+  ILoginReq,
+  IRegisterReq,
+  ISmsReq,
+  IUserHealthReq,
 } from '@repo/api-interface';
 
-export class LoginDto implements ILogin {
+export class LoginDto implements ILoginReq {
   @Matches(/^1[3-9]\d{9}$/, { message: '请输入中国大陆地区手机号' })
   phoneNum: string;
   @Length(4, 4, { message: '请输入短信验证码' })
   smsCode: string;
 }
 
-export class ForgetPasswordDto extends LoginDto implements IForgetPassword {
+export class ForgetPasswordDto extends LoginDto implements IForgetPasswordReq {
   @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
     message: '密码至少包含数字和英文, 长度6-20',
   })
@@ -36,7 +36,7 @@ export class ForgetPasswordDto extends LoginDto implements IForgetPassword {
 
 export class LoginByPasswordDto
   extends PickType(LoginDto, ['phoneNum'])
-  implements ILoginByPassword
+  implements ILoginByPasswordReq
 {
   @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
     message: '密码至少包含数字和英文, 长度6-20',
@@ -47,7 +47,7 @@ export class LoginByPasswordDto
 
 export class RegisterDto
   extends PickType(LoginDto, ['phoneNum', 'smsCode'])
-  implements IRegister
+  implements IRegisterReq
 {
   @Matches(/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, {
     message: '密码至少包含数字和英文, 长度6-20',
@@ -58,13 +58,16 @@ export class RegisterDto
 
 export class CaptchaDto
   extends PickType(LoginDto, ['phoneNum'])
-  implements ICaptcha
+  implements ICaptchaReq
 {
   @IsEnum(SmsCodeType)
   type: SmsCodeType;
 }
 
-export class SmsDto extends PickType(LoginDto, ['phoneNum']) implements ISms {
+export class SmsDto
+  extends PickType(LoginDto, ['phoneNum'])
+  implements ISmsReq
+{
   @Length(4, 4, { message: '请输入图形验证码' })
   captcha: string;
 
@@ -85,7 +88,7 @@ export enum Gender {
   FEMALE = 'FEMALE',
 }
 
-export class UserHealthDto implements IUserHealth {
+export class UserHealthDto implements IUserHealthReq {
   @Min(50)
   @Max(300)
   height: number; // 身高（厘米）

@@ -9,9 +9,9 @@ import LoginPwdForm from "./LoginPwdForm";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
 import type { ThemedComponentProps } from "@ui-kitten/components";
-import type { ILogin } from "@repo/api-interface";
+import type { ILoginByPasswordReq } from "@repo/api-interface";
 
-type FormData = ILogin;
+type FormData = ILoginByPasswordReq;
 
 interface LoginFormProps extends ThemedComponentProps<"View"> {
   className?: string;

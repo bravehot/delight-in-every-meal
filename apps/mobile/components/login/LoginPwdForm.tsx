@@ -1,45 +1,48 @@
-import { useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Modal, withStyles } from "@ui-kitten/components";
-import { useQuery } from "@tanstack/react-query";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import { Button, withStyles } from "@ui-kitten/components";
+import { Link, useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Toast from "react-native-toast-message";
 
 import InputForm from "@/components/InputForm";
 
-import { getCaptcha } from "@/service/login";
+import { loginByPassword } from "@/service/login";
+import useGlobalStore from "@/store";
 
 import type { ThemedComponentProps } from "@ui-kitten/components";
-import type { ILoginByPassword } from "@repo/api-interface";
-import { Link } from "expo-router";
+import type { ILoginByPasswordReq } from "@repo/api-interface";
 
-type FormData = ILoginByPassword;
+type FormData = ILoginByPasswordReq;
 
 interface LoginFormProps extends ThemedComponentProps<"View"> {
   className?: string;
 }
 
 const LoginPwdForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
+  const router = useRouter();
   const {
     control,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ mode: "onBlur" });
+  const { updateUserInfo } = useGlobalStore();
 
-  const phoneNum = watch("phoneNum");
-
-  // 表单提交函数
   const onSubmit = async (data: FormData) => {
     try {
-      // TODO: 调用登录 API
-      console.log(data);
+      const { data: loginRes } = await loginByPassword(data);
+      AsyncStorage.setItem("authToken", loginRes.accessToken);
+      AsyncStorage.setItem("refreshToken", loginRes.refreshToken);
+      updateUserInfo(loginRes);
+      Toast.show({
+        type: "success",
+        text1: "登录成功",
+      });
+      router.replace("/");
     } catch (error) {
       console.error("登录失败:", error);
     }
   };
-
-  const handleRegister = () => {};
 
   return (
     <View className={`flex w-full ${className}`}>
@@ -85,7 +88,8 @@ const LoginPwdForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
         render={({ field: { onChange, onBlur, value } }) => (
           <InputForm
             className="mt-[20px] text-gray-500 tracking-widest"
-            keyboardType="phone-pad"
+            keyboardType="default"
+            secureTextEntry={true}
             onBlur={onBlur}
             onChangeText={onChange}
             placeholder="请输入登录密码"

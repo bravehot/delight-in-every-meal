@@ -1,28 +1,23 @@
 import { useState } from "react";
 import { View, Text, Pressable } from "react-native";
-import { Button, withStyles } from "@ui-kitten/components";
 import { useForm, Controller } from "react-hook-form";
-import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import Toast from "react-native-toast-message";
-import InputForm from "@/components/InputForm";
+import InputForm from "../InputForm";
 import CaptureModal from "./CaptureModal";
 
-import { loginBySms } from "@/service/login";
-import useGlobalStore from "@/store";
-
-import { SmsCodeType, type ILoginReq } from "@repo/api-interface";
 import type { ThemedComponentProps } from "@ui-kitten/components";
-import type { SubmitHandler } from "react-hook-form";
+import { SmsCodeType, type IForgetPasswordReq } from "@repo/api-interface";
 
-type FormData = ILoginReq;
-
-interface LoginFormProps extends ThemedComponentProps<"View"> {
+interface ForgetPwdFormProps extends ThemedComponentProps<"View"> {
   className?: string;
 }
 
-const LoginSmsForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
+type FormData = IForgetPasswordReq;
+
+const ForgetPwdForm: React.FC<ForgetPwdFormProps> = ({
+  eva,
+  className = "",
+}) => {
   const {
     control,
     handleSubmit,
@@ -30,33 +25,14 @@ const LoginSmsForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
     trigger,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ mode: "onBlur" });
-  const router = useRouter();
-
   const [state, setState] = useState({ visible: false, countdown: 0 });
   const phoneNum = watch("phoneNum");
-  const { updateUserInfo } = useGlobalStore();
 
   const getCaptchaModal = async () => {
     const isVaild = await trigger(["phoneNum"]);
     if (!isVaild) return;
 
     setState((prevState) => ({ ...prevState, visible: true }));
-  };
-
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
-    try {
-      const { data: loginRes } = await loginBySms(data);
-      AsyncStorage.setItem("authToken", loginRes.accessToken);
-      AsyncStorage.setItem("refreshToken", loginRes.refreshToken);
-      updateUserInfo(loginRes);
-      Toast.show({
-        type: "success",
-        text1: "登录成功",
-      });
-      router.replace("/");
-    } catch (error) {
-      console.error("登录失败:", error);
-    }
   };
 
   const handleSendSmsSuccess = (isSuccess: boolean) => {
@@ -148,19 +124,9 @@ const LoginSmsForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
         </Text>
       )}
 
-      <Button
-        className="mt-[20px]"
-        onPress={handleSubmit(onSubmit)}
-        disabled={isSubmitting}
-      >
-        <Text className="text-white">
-          {isSubmitting ? "登录中..." : "登录"}
-        </Text>
-      </Button>
-
       <CaptureModal
         phoneNum={phoneNum}
-        smsType={SmsCodeType.LOGIN_CODE_KEY}
+        smsType={SmsCodeType.FORGET_PASSWORD_CODE_KEY}
         visible={state.visible}
         close={(visible) => {
           setState((prevState) => ({ ...prevState, visible }));
@@ -171,4 +137,4 @@ const LoginSmsForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
   );
 };
 
-export default withStyles(LoginSmsForm);
+export default ForgetPwdForm;

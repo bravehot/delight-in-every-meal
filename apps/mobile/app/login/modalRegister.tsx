@@ -1,6 +1,6 @@
-import RegisterForm from "@/components/login/RegisterForm";
-import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import RegisterForm from "@/components/login/RegisterForm";
 
 const Modal: React.FC = () => {
   return (

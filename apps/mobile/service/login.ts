@@ -1,47 +1,52 @@
 import request from "@/utils/request";
 
 import type {
-  ICaptcha,
-  ILogin,
-  ILoginByPassword,
-  IRegister,
-  ISms,
+  ICaptchaReq,
+  IGetCaptchaRes,
+  ILoginByPasswordReq,
+  ILoginReq,
+  IRegisterReq,
+  ISmsReq,
+  IGetSmsCodeRes,
+  IRegisterRes,
+  ILoginRes,
+  ILoginByPasswordRes,
 } from "@repo/api-interface";
 
-const getCaptcha = (params: ICaptcha) => {
-  return request({
+const getCaptcha = (params: ICaptchaReq) => {
+  return request<IGetCaptchaRes>({
     url: "user/getCaptcha",
     method: "GET",
     params: params,
   });
 };
 
-const sendSms = (params: ISms) => {
-  return request({
+const sendSms = (params: ISmsReq) => {
+  return request<IGetSmsCodeRes>({
     url: "user/sendSms",
     method: "get",
     params,
   });
 };
 
-const register = (data: IRegister) => {
-  return request({
+const register = (data: IRegisterReq) => {
+  return request<IRegisterRes>({
     url: "user/register",
     method: "post",
     data,
   });
 };
 
-const loginByPassword = (data: ILoginByPassword) => {
-  return request({
+const loginByPassword = (data: ILoginByPasswordReq) => {
+  return request<ILoginByPasswordRes>({
     url: "user/loginByPassword",
     method: "post",
     data,
   });
 };
 
-const loginBySms = (data: ILogin) => {
-  return request({
+const loginBySms = (data: ILoginReq) => {
+  return request<ILoginRes>({
     url: "user/login",
     method: "post",
     data,

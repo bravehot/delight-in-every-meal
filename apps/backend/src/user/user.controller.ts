@@ -62,7 +62,7 @@ export class UserController {
   @Get('getCaptcha')
   async getCaptcha(@Res() res: Response, @Query() info: CaptchaDto) {
     const captcha = await this.userService.getCaptcha(info);
-    res.type('svg').send(captcha.data);
+    res.type('svg').send(captcha);
   }
 
   @Get('profile')

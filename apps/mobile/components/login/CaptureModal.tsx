@@ -63,6 +63,7 @@ const CaptureModal: React.FC<ICaptureModalProps> = ({
 
   const handleSend = async () => {
     if (!phoneNum || !smsType || !state.capchaInput) return;
+
     const { statusCode } = await sendSms({
       phoneNum: phoneNum.toString(),
       type: smsType,

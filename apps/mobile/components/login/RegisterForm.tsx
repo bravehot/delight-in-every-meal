@@ -13,11 +13,11 @@ import logoImage from "@/assets/images/icon.png";
 
 import { register } from "@/service/login";
 
-import { SmsCodeType, type IRegister } from "@repo/api-interface";
+import { SmsCodeType, type IRegisterReq } from "@repo/api-interface";
 import type { ThemedComponentProps } from "@ui-kitten/components";
 import type { SubmitHandler } from "react-hook-form";
 
-interface FormData extends IRegister {
+interface FormData extends IRegisterReq {
   password2: string;
 }
 interface RegisterFormProps extends ThemedComponentProps<"View"> {
@@ -113,11 +113,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
           render={({ field: { onChange, onBlur, value } }) => (
             <InputForm
               className="mt-[20px] text-gray-500 tracking-widest"
-              keyboardType="phone-pad"
+              keyboardType="default"
               onBlur={onBlur}
               onChangeText={onChange}
               placeholder="请输入登录密码"
               value={value}
+              secureTextEntry={true}
             />
           )}
         />
@@ -141,11 +142,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ eva, className = "" }) => {
           render={({ field: { onChange, onBlur, value } }) => (
             <InputForm
               className="mt-[20px] text-gray-500 tracking-widest"
-              keyboardType="phone-pad"
+              keyboardType="default"
               onBlur={onBlur}
               onChangeText={onChange}
               placeholder="请再次输入登录密码"
               value={value}
+              secureTextEntry={true}
             />
           )}
         />
