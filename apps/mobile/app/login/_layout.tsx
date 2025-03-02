@@ -1,5 +1,7 @@
 import { Stack } from "expo-router";
 
+import { stackDefaultOptions } from "@/constant";
+
 export default function LoginLayout() {
   return (
     <Stack>
@@ -16,11 +18,7 @@ export default function LoginLayout() {
           presentation: "card",
           headerShown: true,
           title: "注册账号",
-          headerBackTitle: "返回",
-          headerTintColor: "#000", //text-gray-500
-          headerTitleStyle: {
-            fontWeight: "normal",
-          },
+          ...stackDefaultOptions,
         }}
       />
       <Stack.Screen
@@ -29,11 +27,7 @@ export default function LoginLayout() {
           presentation: "card",
           headerShown: true,
           title: "忘记密码",
-          headerBackTitle: "返回",
-          headerTintColor: "#000", //text-gray-500
-          headerTitleStyle: {
-            fontWeight: "normal",
-          },
+          ...stackDefaultOptions,
         }}
       />
     </Stack>

@@ -71,11 +71,16 @@ export class UserController {
     return await this.userService.getUserInfo(userId);
   }
 
-  @Post('health')
+  @Post('setUserHealth')
   async setUserHealth(
     @CurrentUserId() userId: string,
     @Body() body: UserHealthDto,
   ) {
     return await this.userService.setUserHealth(userId, body);
+  }
+
+  @Get('getUserHealth')
+  async getUserHealth(@CurrentUserId() userId: string) {
+    return await this.userService.getUserHealth(userId);
   }
 }

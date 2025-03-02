@@ -1,49 +1,25 @@
 import { useState, useRef } from "react";
 import { View, Text, Pressable, Animated } from "react-native";
-import { useForm } from "react-hook-form";
 import { withStyles } from "@ui-kitten/components";
 import { Link } from "expo-router";
 
 import LoginSmsForm from "./LoginSmsForm";
 import LoginPwdForm from "./LoginPwdForm";
+
 import AntDesign from "@expo/vector-icons/AntDesign";
 
 import type { ThemedComponentProps } from "@ui-kitten/components";
-import type { ILoginByPasswordReq } from "@repo/api-interface";
-
-type FormData = ILoginByPasswordReq;
 
 interface LoginFormProps extends ThemedComponentProps<"View"> {
   className?: string;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
-  const {
-    control,
-    handleSubmit,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<FormData>({ mode: "onBlur" });
-
   const [state, setState] = useState<{ loginType: "password" | "phone" }>({
     loginType: "password",
   });
 
-  const phoneNum = watch("phoneNum");
-
   const fadeAnim = useRef(new Animated.Value(1)).current;
-
-  // 表单提交函数
-  const onSubmit = async (data: FormData) => {
-    try {
-      // TODO: 调用登录 API
-      console.log(data);
-    } catch (error) {
-      console.error("登录失败:", error);
-    }
-  };
-
-  const handleRegister = () => {};
 
   const handleChangeLoginType = () => {
     Animated.timing(fadeAnim, {
@@ -90,10 +66,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
       </Pressable>
 
       <View>
-        <Pressable
-          onPress={handleRegister}
-          className="flex-row w-full justify-center text-sm mt-[10px]"
-        >
+        <Pressable className="flex-row w-full justify-center text-sm mt-[10px]">
           <Text className="text-gray-500 mr-[4px]" numberOfLines={1}>
             还没有账号？
           </Text>

@@ -4,6 +4,7 @@ import Toast from "react-native-toast-message";
 import { router } from "expo-router";
 
 import useGlobalStore from "@/store";
+import { USER_TOKEN_KEY } from "@/types";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -17,7 +18,7 @@ const axiosInterface = axios.create({
 
 axiosInterface.interceptors.request.use(
   async (config) => {
-    const token = await AsyncStorage.getItem("authToken");
+    const token = await AsyncStorage.getItem(USER_TOKEN_KEY.ACCESS_TOKEN);
     if (token) {
       config.headers["authorization"] = `Bearer ${token}`;
     }
@@ -35,7 +36,7 @@ axiosInterface.interceptors.response.use(
   async (error) => {
     const resStatus = error.response?.status;
     if (resStatus === 401) {
-      await AsyncStorage.removeItem("authToken");
+      await AsyncStorage.removeItem(USER_TOKEN_KEY.ACCESS_TOKEN);
       useGlobalStore.getState().updateUserInfo(null);
       router.replace("/login");
       Toast.show({

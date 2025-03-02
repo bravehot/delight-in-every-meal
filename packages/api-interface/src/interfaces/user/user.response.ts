@@ -31,7 +31,7 @@ export interface IUserInfoRes {
   avatar: string | null;
 }
 
-export interface ISetUserHealthRes {
+export interface IUserHealthRes {
   id: string;
   gender: Gender;
   createdAt: Date;

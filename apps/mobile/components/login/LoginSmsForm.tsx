@@ -15,6 +15,7 @@ import useGlobalStore from "@/store";
 import { SmsCodeType, type ILoginReq } from "@repo/api-interface";
 import type { ThemedComponentProps } from "@ui-kitten/components";
 import type { SubmitHandler } from "react-hook-form";
+import { USER_TOKEN_KEY } from "@/types";
 
 type FormData = ILoginReq;
 
@@ -31,10 +32,11 @@ const LoginSmsForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ mode: "onBlur" });
   const router = useRouter();
+  const { updateUserInfo } = useGlobalStore();
 
   const [state, setState] = useState({ visible: false, countdown: 0 });
+
   const phoneNum = watch("phoneNum");
-  const { updateUserInfo } = useGlobalStore();
 
   const getCaptchaModal = async () => {
     const isVaild = await trigger(["phoneNum"]);
@@ -46,14 +48,14 @@ const LoginSmsForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
       const { data: loginRes } = await loginBySms(data);
-      AsyncStorage.setItem("authToken", loginRes.accessToken);
-      AsyncStorage.setItem("refreshToken", loginRes.refreshToken);
+      AsyncStorage.setItem(USER_TOKEN_KEY.ACCESS_TOKEN, loginRes.accessToken);
+      AsyncStorage.setItem(USER_TOKEN_KEY.REFRESH_TOKEN, loginRes.refreshToken);
       updateUserInfo(loginRes);
       Toast.show({
         type: "success",
         text1: "登录成功",
       });
-      router.replace("/");
+      router.replace("/(tabs)/(home)");
     } catch (error) {
       console.error("登录失败:", error);
     }

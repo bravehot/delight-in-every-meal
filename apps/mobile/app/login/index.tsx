@@ -24,7 +24,7 @@ export default function Login() {
           <Text
             className="text-center my-8 text-2xl"
             style={{
-              fontFamily: "AlimamaAgileVF_Thin",
+              fontFamily: "AlibabaPuHuiTi",
               letterSpacing: 10,
             }}
           >

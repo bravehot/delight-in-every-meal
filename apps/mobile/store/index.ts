@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 import type { ColorSchemeName } from "react-native";
-import type { IUserInfoRes } from "@repo/api-interface";
+import type { IUserHealthRes, IUserInfoRes } from "@repo/api-interface";
 
 type GlobalStore = {
   systemColorScheme: ColorSchemeName | undefined;
@@ -11,6 +11,9 @@ type GlobalStore = {
 
   userInfo: IUserInfoRes | null;
   updateUserInfo: (userInfo: GlobalStore["userInfo"]) => void;
+
+  userHealth: IUserHealthRes | null;
+  updateUserHealth: (userHealth: GlobalStore["userHealth"]) => void;
 };
 
 const useGlobalStore = create<GlobalStore>((set) => ({
@@ -20,6 +23,9 @@ const useGlobalStore = create<GlobalStore>((set) => ({
 
   userInfo: null,
   updateUserInfo: (newUserInfo) => set({ userInfo: newUserInfo }),
+
+  userHealth: null,
+  updateUserHealth: (newUserHealth) => set({ userHealth: newUserHealth }),
 }));
 
 export default useGlobalStore;

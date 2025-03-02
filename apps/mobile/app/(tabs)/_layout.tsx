@@ -2,17 +2,37 @@ import { useEffect } from "react";
 import { Tabs, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { useMutation } from "@tanstack/react-query";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import useGlobalStore from "@/store";
+import { getUserInfo } from "@/service/home";
+
+import { USER_TOKEN_KEY } from "@/types";
 
 export default function TabLayout() {
-  const { systemColorScheme } = useGlobalStore();
+  const { updateUserInfo } = useGlobalStore();
+
   const router = useRouter();
+  const { mutate: getUserInfoMutate } = useMutation({
+    mutationFn: getUserInfo,
+  });
 
   useEffect(() => {
-    setTimeout(() => {
-      router.push("/login");
-    }, 1000);
+    const getUserInfo = async () => {
+      const token = await AsyncStorage.getItem(USER_TOKEN_KEY.ACCESS_TOKEN);
+      if (token) {
+        getUserInfoMutate(undefined, {
+          onSuccess: (res) => {
+            updateUserInfo(res.data);
+          },
+          onError: (_error) => {
+            router.replace("/login");
+          },
+        });
+      }
+    };
+    getUserInfo();
   }, []);
 
   return (
@@ -29,17 +49,17 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="recipe"
+          name="(home)"
           options={{
-            title: "食谱",
+            title: "首页",
             tabBarIcon: ({ color }) => (
-              <AntDesign name="book" size={24} color={color} />
+              <AntDesign name="home" size={24} color={color} />
             ),
             tabBarActiveBackgroundColor: "transparent",
           }}
         />
         <Tabs.Screen
-          name="index"
+          name="recognize"
           options={{
             title: "识别",
             tabBarIcon: ({ color }) => (

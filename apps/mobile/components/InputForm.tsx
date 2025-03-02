@@ -62,6 +62,7 @@ const InputForm: React.FC<InputRadiusProps> = ({
         onBlur={() => setIsFocused(false)}
         accessibilityLabel={placeholder}
         placeholderTextColor={eva?.theme?.["color-basic-400"]}
+        
         {...props}
       />
     </Animated.View>

@@ -43,7 +43,7 @@ import {
   IGetSmsCodeRes,
   IGetCaptchaRes,
   IUserInfoRes,
-  ISetUserHealthRes,
+  IUserHealthRes,
 } from '@repo/api-interface';
 
 @Injectable()
@@ -362,7 +362,7 @@ export class UserService {
   async setUserHealth(
     userId: string,
     info: UserHealthDto,
-  ): Promise<ISetUserHealthRes> {
+  ): Promise<IUserHealthRes> {
     const { height, weight, gender, age, activityLevel } = info;
 
     const bmrValue =
@@ -401,6 +401,23 @@ export class UserService {
       },
     });
 
-    return updatedHealth as unknown as ISetUserHealthRes;
+    return updatedHealth as unknown as IUserHealthRes;
+  }
+
+  async getUserHealth(userId: string): Promise<IUserHealthRes> {
+    const userHealth = await this.prismaService.userHealth.findUnique({
+      where: {
+        userId,
+      },
+    });
+
+    if (!userHealth) {
+      throw new HttpException(
+        '请填写健康信息',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return userHealth as unknown as IUserHealthRes;
   }
 }

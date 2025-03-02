@@ -1,6 +1,6 @@
 import { View, Text, Pressable } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { Button, withStyles } from "@ui-kitten/components";
+import { Button } from "@ui-kitten/components";
 import { Link, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
@@ -8,20 +8,21 @@ import { useMutation } from "@tanstack/react-query";
 
 import InputForm from "@/components/InputForm";
 
-import { loginByPassword } from "@/service/login";
 import useGlobalStore from "@/store";
 
-import type { ThemedComponentProps } from "@ui-kitten/components";
-import type { ILoginByPasswordReq } from "@repo/api-interface";
+import { loginByPassword } from "@/service/login";
 import { passwordReg } from "@/utils";
+
+import type { ILoginByPasswordReq } from "@repo/api-interface";
+import { USER_TOKEN_KEY } from "@/types";
 
 type FormData = ILoginByPasswordReq;
 
-interface LoginFormProps extends ThemedComponentProps<"View"> {
+interface LoginFormProps {
   className?: string;
 }
 
-const LoginPwdForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
+const LoginPwdForm: React.FC<LoginFormProps> = ({ className = "" }) => {
   const router = useRouter();
   const {
     control,
@@ -38,15 +39,18 @@ const LoginPwdForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
   const onSubmit = async (data: FormData) => {
     loginByPasswordMutate(data, {
       onSuccess: ({ data: loginRes }) => {
-        AsyncStorage.setItem("authToken", loginRes.accessToken);
-        AsyncStorage.setItem("refreshToken", loginRes.refreshToken);
+        AsyncStorage.setItem(USER_TOKEN_KEY.ACCESS_TOKEN, loginRes.accessToken);
+        AsyncStorage.setItem(
+          USER_TOKEN_KEY.REFRESH_TOKEN,
+          loginRes.refreshToken
+        );
 
         updateUserInfo(loginRes);
         Toast.show({
           type: "success",
           text1: "登录成功",
         });
-        router.replace("/");
+        router.replace("/(tabs)/(home)");
       },
     });
   };
@@ -131,4 +135,4 @@ const LoginPwdForm: React.FC<LoginFormProps> = ({ eva, className = "" }) => {
   );
 };
 
-export default withStyles(LoginPwdForm);
+export default LoginPwdForm;
